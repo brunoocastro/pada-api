@@ -3,24 +3,24 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { compareSync } from 'bcrypt';
+import { User } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../database/prisma.service';
-import { RegisterUserDto } from './dto/register-user.dto';
+import { UserRegisterDto } from '../auth/dto/register.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createUserDto: RegisterUserDto) {
-    const possibleUser = await this.prisma.user.findUnique({
+  async create(createUserDto: UserRegisterDto) {
+    const possibleUser = await this.prismaService.user.findUnique({
       where: { email: createUserDto.email },
     });
 
     if (possibleUser) throw new BadRequestException('Email already in use!');
 
-    const createdUser = await this.prisma.user.create({
+    const createdUser = await this.prismaService.user.create({
       data: {
         ...createUserDto,
         birth: new Date(createUserDto.birth),
@@ -41,9 +41,9 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const currentUser = await this.prisma.user.findUnique({ where: { id } });
-
-    console.log(currentUser);
+    const currentUser = await this.prismaService.user.findUnique({
+      where: { id },
+    });
 
     if (!currentUser) {
       throw new NotFoundException('User not found!');
@@ -54,7 +54,7 @@ export class UsersService {
       currentUser[key] = value;
     });
 
-    const updatedUser = await this.prisma.user.update({
+    const updatedUser = await this.prismaService.user.update({
       where: { id },
       data: currentUser,
       select: {
@@ -68,29 +68,25 @@ export class UsersService {
     return updatedUser;
   }
 
-  async validateUserLogin(email: string, password: string) {
-    const existentUser = await this.prisma.user.findUnique({
-      where: { email },
-      select: {
-        password: true,
-        id: true,
-      },
+  async findByEmail(email: string) {
+    return await this.prismaService.user.findUnique({ where: { email } });
+  }
+
+  async userLoginConfirmed(id: string) {
+    const currentUser = await this.prismaService.user.findUnique({
+      where: { id },
     });
 
-    if (!existentUser) return null;
+    currentUser.lastLogin = new Date();
 
-    const isValidPassword = compareSync(password, existentUser.password);
-
-    if (!isValidPassword) return null;
-
-    const updatedUser = await this.prisma.user.update({
-      where: { email },
-      data: { ...existentUser, lastLogin: new Date() },
+    const updatedUser = await this.prismaService.user.update({
+      where: { id },
+      data: currentUser,
       select: {
+        id: true,
         name: true,
         birth: true,
         picture: true,
-        id: true,
         emailVerified: true,
         password: false,
       },
