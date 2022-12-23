@@ -3,7 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../database/prisma.service';
 import { UserRegisterDto } from '../auth/dto/register.dto';
@@ -36,8 +35,26 @@ export class UsersService {
     return createdUser;
   }
 
-  findById(id: string) {
-    return `This action returns a #${id} user`;
+  async findById(id: string) {
+    const possibleUser = await this.prismaService.user.findUnique({
+      where: { id },
+      select: {
+        birth: true,
+        createdAt: true,
+        email: true,
+        emailVerified: true,
+        id: true,
+        lastLogin: true,
+        name: true,
+        picture: true,
+        updatedAt: true,
+        password: false,
+      },
+    });
+
+    if (!possibleUser) return null;
+
+    return possibleUser;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

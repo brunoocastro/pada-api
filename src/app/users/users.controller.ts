@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,15 +18,17 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
-  getProfile(@Param('id', new ParseUUIDPipe()) id: string) {
+  getUserProfile(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.usersService.findById(id);
   }
 
   @Patch(':id')
-  update(
+  updateUserProfile(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(id, updateUserDto);
   }
+
+  // @Delete(":id")
 }
