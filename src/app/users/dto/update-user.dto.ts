@@ -1,12 +1,13 @@
 import { IsOptional } from 'class-validator';
+import { UserEntity } from '../entities/user.entity';
 
-export class UpdateUserDto {
+export class UpdateUserDto implements Partial<UserEntity> {
   @IsOptional()
-  name: string;
-
-  @IsOptional()
-  birth: Date;
+  name?: UserEntity['name'];
 
   @IsOptional()
-  picture: string;
+  picture?: UserEntity['picture'];
+
+  @IsOptional()
+  emailStatus?: UserEntity['emailStatus'];
 }

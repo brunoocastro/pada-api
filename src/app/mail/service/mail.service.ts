@@ -22,6 +22,8 @@ export class MailService {
     const response = await lastValueFrom(
       this.httpService.post(url, params, config),
     );
+
+    console.log({ response });
     return response.status === HttpStatus.ACCEPTED;
   }
 

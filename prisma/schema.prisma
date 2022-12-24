@@ -11,14 +11,29 @@ datasource db {
 }
 
 model User {
-  id            String    @id @unique
-  email         String    @unique 
-  emailVerified Boolean   @default(false)
-  name          String
-  birth         DateTime
-  picture       String?
-  password      String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  lastLogin     DateTime  @default(now())
+  id        String   @id @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email       String      @unique
+  emailStatus EmailStatus @default(UNVERIFIED)
+  role        Role        @default(USER)
+  name        String
+  picture     String?
+  password    String
+
+  // RELATIONS
+
+  @@map("users")
+}
+
+enum EmailStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+}
+
+enum Role {
+  ADMIN
+  USER
 }
