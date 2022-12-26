@@ -1,10 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { SendMailInterface } from '../interface/send-mail.interface';
 import { lastValueFrom } from 'rxjs';
-import { mailHelper } from '../../../helpers/mail.helper';
-import { getGenericConfirmationTemplate } from '../template/generic-confirmation.template';
-import { SendConfirmAccountMailInterface } from '../interface/send-confirm-account-mail.interface';
+import { mailHelper } from '../../helpers/mail.helper';
+import { SendConfirmAccountMailInterface } from './interface/send-confirm-account-mail.interface';
+import { SendMailInterface } from './interface/send-mail.interface';
+import { getGenericConfirmationTemplate } from './template/generic-confirmation.template';
 
 @Injectable()
 export class MailService {
@@ -23,7 +23,6 @@ export class MailService {
       this.httpService.post(url, params, config),
     );
 
-    console.log({ response });
     return response.status === HttpStatus.ACCEPTED;
   }
 

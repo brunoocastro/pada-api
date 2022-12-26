@@ -4,52 +4,48 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { genSaltSync, hashSync } from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '../../database/prisma.service';
 import { mailHelper } from '../../helpers/mail.helper';
-import { UserRegisterDto } from '../auth/dto/register.dto';
-import { MailService } from '../mail/service/mail.service';
+import { RegisterUserDto } from '../auth/dto/register.dto';
+import { MailService } from '../mail/mail.service';
+import { CreateOrUpdateUserResponseDto } from './dto/create-update-user-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
+import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly prismaService: PrismaService,
+    private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
 
-  async findById(id: string) {
-    const possibleUser = await this.prismaService.user.findUnique({
-      where: { id },
-    });
+  async findById(id: string): Promise<UserEntity> {
+    const possibleUser = await this.usersRepository.findById(id);
 
     return plainToInstance(UserEntity, possibleUser, {
       excludeExtraneousValues: true,
     });
   }
 
-  async findByEmail(email: string) {
-    const possibleUser = await this.prismaService.user.findUnique({
-      where: { email },
-    });
+  async findByEmail(email: string): Promise<UserEntity> {
+    const possibleUser = await this.usersRepository.findByEmail(email);
 
     return plainToInstance(UserEntity, possibleUser, {
       excludeExtraneousValues: true,
     });
   }
 
-  async findByEmailWithSensitiveData(email: string) {
-    const possibleUser = await this.prismaService.user.findUnique({
-      where: { email },
-    });
+  async findByEmailWithSensitiveData(email: string): Promise<UserEntity> {
+    const possibleUser = await this.usersRepository.findByEmail(email);
 
     return possibleUser;
   }
 
-  async getExistentById(id: string) {
+  async getExistentById(id: string): Promise<UserEntity> {
     const possibleUser = await this.findById(id);
 
     if (!possibleUser) throw new NotFoundException('User not found!');
@@ -57,27 +53,35 @@ export class UsersService {
     return possibleUser;
   }
 
-  async create(createUserDto: UserRegisterDto) {
+  async create(
+    createUserDto: RegisterUserDto,
+  ): Promise<CreateOrUpdateUserResponseDto> {
     const possibleUser = await this.findByEmail(createUserDto.email);
 
     if (possibleUser) throw new BadRequestException('Email already in use!');
 
-    const createdUser = await this.prismaService.user.create({
-      data: {
-        ...createUserDto,
-        id: randomUUID(),
-      },
-      select: {
-        password: false,
-        createdAt: true,
-        id: true,
-      },
-    });
+    const salt = genSaltSync(10);
+    const hash = hashSync(createUserDto.password, salt);
 
-    return createdUser;
+    const newUserData: RegisterUserDto = { ...createUserDto, password: hash };
+
+    const createdUser = await this.usersRepository.create(newUserData);
+
+    const createResponse = plainToInstance(
+      CreateOrUpdateUserResponseDto,
+      createdUser,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
+    return createResponse;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<CreateOrUpdateUserResponseDto> {
     const currentUser = await this.getExistentById(id);
 
     Object.entries(updateUserDto).map(([key, value]) => {
@@ -85,23 +89,24 @@ export class UsersService {
       currentUser[key] = value;
     });
 
-    const updatedUser = await this.prismaService.user.update({
-      where: { id },
-      data: currentUser,
-      select: {
-        name: true,
-        picture: true,
-        id: true,
-        password: false,
+    const updatedUser = await this.usersRepository.updateById(id, currentUser);
+
+    const updateResponse = plainToInstance(
+      CreateOrUpdateUserResponseDto,
+      updatedUser,
+      {
+        excludeExtraneousValues: true,
       },
-    });
-    return updatedUser;
+    );
+
+    return updateResponse;
   }
 
-  async confirmEmail(id: string, token: string) {
+  async confirmEmail(
+    id: string,
+    token: string,
+  ): Promise<CreateOrUpdateUserResponseDto> {
     const user = await this.getExistentById(id);
-
-    console.log({ user, token });
 
     if (user.emailStatus === 'VERIFIED')
       throw new BadRequestException('Email already verified!');
@@ -111,16 +116,6 @@ export class UsersService {
 
     const decodedToken = this.jwtService.verify(token, {
       ignoreExpiration: true,
-    });
-
-    console.log({
-      isValidToken: decodedToken,
-      user,
-      date1: new Date(decodedToken.createdAt),
-      date2: new Date(user.createdAt),
-      equals:
-        new Date(decodedToken.createdAt).toISOString() ===
-        new Date(user.createdAt).toISOString(),
     });
 
     if (!decodedToken)
@@ -141,12 +136,8 @@ export class UsersService {
     return updatedUser;
   }
 
-  async sendConfirmationEmail(id: string) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) throw new NotFoundException('User not found!');
+  async sendConfirmationEmail(id: string): Promise<void> {
+    const user = await this.getExistentById(id);
 
     if (user.emailStatus === 'VERIFIED')
       throw new BadRequestException('Email already verified!');
@@ -159,26 +150,17 @@ export class UsersService {
 
     const url = `${mailHelper.projectUrl}/users/${id}/email/confirm/${token}`;
 
-    const mailSended = await this.mailService.sendConfirmAccountMail({
+    await this.mailService.sendConfirmAccountMail({
       confirmationUrl: url,
       to: [{ email: user.email, name: user.name }],
     });
 
     await this.update(id, { emailStatus: 'PENDING' });
-
-    return mailSended;
   }
-  async delete(id: string) {
+
+  async delete(id: string): Promise<void> {
     await this.getExistentById(id);
 
-    const deletedUser = await this.prismaService.user.delete({
-      where: { id },
-      select: {
-        id: true,
-        password: false,
-      },
-    });
-
-    return deletedUser;
+    await this.usersRepository.deleteById(id);
   }
 }

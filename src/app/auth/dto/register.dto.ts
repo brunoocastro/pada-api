@@ -3,7 +3,7 @@ import { MessagesHelper } from '../../../helpers/messages.helper';
 import { RegExHelper } from '../../../helpers/regex.helper';
 import { UserEntity } from '../../users/entities/user.entity';
 
-export class UserRegisterDto
+export class RegisterUserDto
   implements Pick<UserEntity, 'email' | 'password' | 'name' | 'picture'>
 {
   @IsNotEmpty()
