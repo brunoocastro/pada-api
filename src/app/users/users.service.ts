@@ -4,9 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { genSaltSync, hashSync } from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
-import { randomUUID } from 'node:crypto';
 import { mailHelper } from '../../helpers/mail.helper';
 import { RegisterUserDto } from '../auth/dto/register.dto';
 import { MailService } from '../mail/mail.service';
@@ -14,6 +12,8 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
+import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
+import { cryptoHelper } from '../../helpers/crypto.helper';
 
 @Injectable()
 export class UsersService {
@@ -39,10 +39,14 @@ export class UsersService {
     });
   }
 
-  async findByEmailWithSensitiveData(email: string): Promise<UserEntity> {
+  async findByEmailWithSensitiveData(
+    email: string,
+  ): Promise<UserWithSensitiveDataDto> {
     const possibleUser = await this.usersRepository.findByEmail(email);
 
-    return possibleUser;
+    return plainToInstance(UserWithSensitiveDataDto, possibleUser, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async getExistentById(id: string): Promise<UserEntity> {
@@ -56,12 +60,14 @@ export class UsersService {
   async create(createUserDto: RegisterUserDto): Promise<UserResponseDto> {
     const possibleUser = await this.findByEmail(createUserDto.email);
 
+    console.log({ possibleUser });
+
     if (possibleUser) throw new BadRequestException('Email already in use!');
 
-    const salt = genSaltSync(10);
-    const hash = hashSync(createUserDto.password, salt);
-
-    const newUserData: RegisterUserDto = { ...createUserDto, password: hash };
+    const newUserData: RegisterUserDto = {
+      ...createUserDto,
+      password: cryptoHelper.hashPassword(createUserDto.password),
+    };
 
     const createdUser = await this.usersRepository.create(newUserData);
 
@@ -135,7 +141,7 @@ export class UsersService {
       createdAt: user.createdAt,
     });
 
-    const url = `${mailHelper.projectUrl}/users/${id}/email/confirm/${token}`;
+    const url = `${mailHelper.projectUrl}/user/${id}/mail/confirm/${token}`;
 
     await this.mailService.sendConfirmAccountMail({
       confirmationUrl: url,

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { JwtService } from '@nestjs/jwt';
-import { compareSync } from 'bcrypt';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { cryptoHelper } from '../../helpers/crypto.helper';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { UsersService } from '../users/users.service';
 import { RegisterUserDto } from './dto/register.dto';
@@ -22,11 +23,14 @@ export class AuthService {
       email,
     );
 
-    if (!possibleUser) return null;
+    if (!possibleUser) throw new UnauthorizedException();
 
-    const validPassword = compareSync(password, possibleUser.password);
+    const validPassword = cryptoHelper.validatePassword(
+      password,
+      possibleUser.password,
+    );
 
-    if (!validPassword) return null;
+    if (!validPassword) throw new UnauthorizedException();
 
     const userTokenPayload = plainToInstance(UserResponseDto, possibleUser, {
       excludeExtraneousValues: true,
