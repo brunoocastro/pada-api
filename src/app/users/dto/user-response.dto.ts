@@ -1,14 +1,14 @@
 import { Expose } from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { UserEntity } from '../entities/user.entity';
 
-export class CreateOrUpdateUserResponseDto implements Partial<UserEntity> {
+export class UserResponseDto implements Partial<UserEntity> {
   @Expose()
   @IsNotEmpty()
   name: UserEntity['name'];
 
   @Expose()
-  @IsNotEmpty()
+  @IsOptional()
   picture: UserEntity['picture'];
 
   @Expose()

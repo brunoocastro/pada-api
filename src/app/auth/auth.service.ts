@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compareSync, genSaltSync, hashSync } from 'bcrypt';
+import { compareSync } from 'bcrypt';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { UserResponseDto } from '../users/dto/user-response.dto';
 import { UsersService } from '../users/users.service';
 import { RegisterUserDto } from './dto/register.dto';
-import { UserTokenPayloadDto } from './dto/tokenPayload.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +13,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  private async generateUserToken(userProps: UserTokenPayloadDto) {
+  private async generateUserToken(userProps: UserResponseDto) {
     return this.jwtService.sign(instanceToPlain(userProps));
   }
 
@@ -28,11 +28,9 @@ export class AuthService {
 
     if (!validPassword) return null;
 
-    const userTokenPayload = plainToInstance(
-      UserTokenPayloadDto,
-      possibleUser,
-      { excludeExtraneousValues: true },
-    );
+    const userTokenPayload = plainToInstance(UserResponseDto, possibleUser, {
+      excludeExtraneousValues: true,
+    });
 
     const loggedUserToken = await this.generateUserToken(userTokenPayload);
 

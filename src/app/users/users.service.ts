@@ -10,7 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { mailHelper } from '../../helpers/mail.helper';
 import { RegisterUserDto } from '../auth/dto/register.dto';
 import { MailService } from '../mail/mail.service';
-import { CreateOrUpdateUserResponseDto } from './dto/create-update-user-response.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
@@ -53,9 +53,7 @@ export class UsersService {
     return possibleUser;
   }
 
-  async create(
-    createUserDto: RegisterUserDto,
-  ): Promise<CreateOrUpdateUserResponseDto> {
+  async create(createUserDto: RegisterUserDto): Promise<UserResponseDto> {
     const possibleUser = await this.findByEmail(createUserDto.email);
 
     if (possibleUser) throw new BadRequestException('Email already in use!');
@@ -67,13 +65,9 @@ export class UsersService {
 
     const createdUser = await this.usersRepository.create(newUserData);
 
-    const createResponse = plainToInstance(
-      CreateOrUpdateUserResponseDto,
-      createdUser,
-      {
-        excludeExtraneousValues: true,
-      },
-    );
+    const createResponse = plainToInstance(UserResponseDto, createdUser, {
+      excludeExtraneousValues: true,
+    });
 
     return createResponse;
   }
@@ -81,7 +75,7 @@ export class UsersService {
   async update(
     id: string,
     updateUserDto: UpdateUserDto,
-  ): Promise<CreateOrUpdateUserResponseDto> {
+  ): Promise<UserResponseDto> {
     const currentUser = await this.getExistentById(id);
 
     Object.entries(updateUserDto).map(([key, value]) => {
@@ -91,21 +85,14 @@ export class UsersService {
 
     const updatedUser = await this.usersRepository.updateById(id, currentUser);
 
-    const updateResponse = plainToInstance(
-      CreateOrUpdateUserResponseDto,
-      updatedUser,
-      {
-        excludeExtraneousValues: true,
-      },
-    );
+    const updateResponse = plainToInstance(UserResponseDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
 
     return updateResponse;
   }
 
-  async confirmEmail(
-    id: string,
-    token: string,
-  ): Promise<CreateOrUpdateUserResponseDto> {
+  async confirmEmail(id: string, token: string): Promise<UserResponseDto> {
     const user = await this.getExistentById(id);
 
     if (user.emailStatus === 'VERIFIED')

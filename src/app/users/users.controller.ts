@@ -14,6 +14,7 @@ import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { UserEntity } from './entities/user.entity';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt.guards';
+import { ExclusiveForUserWithId } from '../auth/decorators/user-exclusive.decorator';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
@@ -30,7 +31,9 @@ export class UsersController {
   async updateUser(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @LoggedUser() currentUser: UserEntity,
+    @ExclusiveForUserWithId() //todo -> Testar funcionamento
+    @LoggedUser()
+    currentUser: UserEntity,
   ) {
     const user = await this.usersService.update(id, updateUserDto);
     return {
