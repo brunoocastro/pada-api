@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './app/users/users.module';
-import { AuthModule } from './app/auth/auth.module';
-import { MailModule } from './app/mail/mail.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
-import { DatabaseModule } from './database/database.module';
+import { DatabaseModule } from '../database/database.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { DatabaseModule } from './database/database.module';
       ...JwtModule.register({
         privateKey: process.env.JWT_PRIVATE_KEY,
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '60s' },
+        signOptions: { expiresIn: '7d' },
         verifyOptions: { ignoreExpiration: true },
       }),
       global: true,
@@ -26,5 +27,6 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
   ],
   providers: [],
+  controllers: [AppController],
 })
 export class AppModule {}

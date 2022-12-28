@@ -24,14 +24,14 @@ export class UserEntity implements User {
   password: string;
 
   constructor(user: Partial<UserEntity>) {
-    this.id = user.id;
-    this.createdAt = user.createdAt;
-    this.updatedAt = user.updatedAt;
-    this.email = user.email;
-    this.name = user.name;
-    this.picture = user.picture;
-    this.emailStatus = user.emailStatus;
-    this.role = user.role;
-    this.password = user.password;
+    this.id = user?.id;
+    this.createdAt = user?.createdAt;
+    this.updatedAt = user?.updatedAt;
+    this.email = user?.email;
+    this.name = user?.name;
+    this.picture = user?.picture;
+    this.emailStatus = user?.emailStatus;
+    this.role = user?.role;
+    this.password = user?.password;
   }
 }

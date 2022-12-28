@@ -4,6 +4,7 @@ import { RegExHelper } from '../../../helpers/regex.helper';
 
 export class UpdateUserPasswordDto {
   @IsNotEmpty()
+  @Matches(RegExHelper.password, { message: MessagesHelper.InvalidPassword })
   oldPassword: string;
 
   @IsNotEmpty()
