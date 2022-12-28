@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  pada-mysql-db:
+    container_name: pada-mysql-container
+    image: mysql:8
+    restart: always
+    volumes:
+      - ./db:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    env_file:
+      - .env
+
+  pada-api:
+    container_name: pada-api-container
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: pada-api
+    restart: always
+    ports:
+      - "3000:3000"
+      - "9222:9222"
+    command: npm run debug
+    volumes:
+      - ./dist:/usr/src/pada-api/dist
+      - ./package.json:/usr/src/pada-api/package.json
+      - ./prisma:/usr/src/pada-api/prisma
+    depends_on:
+      - pada-mysql-db
+    env_file:
+      - .env
+
+volumes:
+  pada-mysql-db:
+    name: pada-db
