@@ -10,11 +10,10 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoggedUser } from '../auth/decorators/logged-user.decorator';
-import { UserEntity } from './entities/user.entity';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt.guards';
 import { ExclusiveForUserWithId } from '../auth/decorators/user-exclusive.decorator';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
@@ -27,13 +26,26 @@ export class UsersController {
     return { message: 'User found with success!', user };
   }
 
+  @Patch(':id/password')
+  async updateUserPassword(
+    // @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateUserPasswordDto: UpdateUserPasswordDto,
+    @ExclusiveForUserWithId() id: string, //todo -> Testar funcionamento
+  ) {
+    const user = await this.usersService.updatePassword(
+      id,
+      updateUserPasswordDto,
+    );
+    return {
+      message: 'User password updated with success!',
+      user,
+    };
+  }
   @Patch(':id')
   async updateUser(
-    @Param('id', new ParseUUIDPipe()) id: string,
+    // @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @ExclusiveForUserWithId() //todo -> Testar funcionamento
-    @LoggedUser()
-    currentUser: UserEntity,
+    @ExclusiveForUserWithId() id: string, //todo -> Testar funcionamento
   ) {
     const user = await this.usersService.update(id, updateUserDto);
     return {

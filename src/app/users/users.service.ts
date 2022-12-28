@@ -2,10 +2,10 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
-import { mailHelper } from '../../helpers/mail.helper';
 import { RegisterUserDto } from '../auth/dto/register.dto';
 import { MailService } from '../mail/mail.service';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -14,6 +14,9 @@ import { UserEntity } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
 import { cryptoHelper } from '../../helpers/crypto.helper';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { mailHelper } from '../../helpers/mail.helper';
+import { matches } from 'class-validator';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +30,15 @@ export class UsersService {
     const possibleUser = await this.usersRepository.findById(id);
 
     return plainToInstance(UserEntity, possibleUser, {
+      excludeExtraneousValues: true,
+    });
+  }
+  async findByIdWithSensitiveData(
+    id: string,
+  ): Promise<UserWithSensitiveDataDto> {
+    const possibleUser = await this.usersRepository.findById(id);
+
+    return plainToInstance(UserWithSensitiveDataDto, possibleUser, {
       excludeExtraneousValues: true,
     });
   }
@@ -60,8 +72,6 @@ export class UsersService {
   async create(createUserDto: RegisterUserDto): Promise<UserResponseDto> {
     const possibleUser = await this.findByEmail(createUserDto.email);
 
-    console.log({ possibleUser });
-
     if (possibleUser) throw new BadRequestException('Email already in use!');
 
     const newUserData: RegisterUserDto = {
@@ -89,6 +99,32 @@ export class UsersService {
       currentUser[key] = value;
     });
 
+    const updatedUser = await this.usersRepository.updateById(id, currentUser);
+
+    const updateResponse = plainToInstance(UserResponseDto, updatedUser, {
+      excludeExtraneousValues: true,
+    });
+
+    return updateResponse;
+  }
+
+  async updatePassword(
+    id: string,
+    updateUserPasswordDto: UpdateUserPasswordDto,
+  ): Promise<UserResponseDto> {
+    const currentUser = await this.findByIdWithSensitiveData(id);
+
+    if (
+      !cryptoHelper.validatePassword(
+        updateUserPasswordDto.oldPassword,
+        currentUser.password,
+      )
+    )
+      throw new UnauthorizedException("Password doesn't matches.");
+
+    currentUser.password = cryptoHelper.hashPassword(
+      updateUserPasswordDto.newPassword,
+    );
     const updatedUser = await this.usersRepository.updateById(id, currentUser);
 
     const updateResponse = plainToInstance(UserResponseDto, updatedUser, {
