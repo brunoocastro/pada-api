@@ -1,7 +1,11 @@
-FROM node:16
+FROM node:16-alpine AS base
+
 WORKDIR /usr/src/pada-api
-RUN npm install
+
+COPY [ "package.json", "package-lock.json", "./" ]
+
+FROM base AS dev
+ENV NODE_ENV=dev
+RUN npm ci
 COPY . .
-RUN npx prisma generate
-EXPOSE 3000
-CMD [  "npm", "run", "start:dev" ]
+CMD [ "npm", "run", "start:dev" ]

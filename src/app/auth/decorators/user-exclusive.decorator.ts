@@ -15,6 +15,6 @@ export const ExclusiveForUserWithId = createParamDecorator(
         'This data is exclusive for account owner.',
       );
 
-    return { id: request.params.id, user: request.user };
+    return request.params.id;
   },
 );

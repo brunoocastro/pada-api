@@ -21,14 +21,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
-  async getUser(@ExclusiveForUserWithId() { id, user: loggedUser }) {
+  async getUser(@ExclusiveForUserWithId() id: string) {
     const user = await this.usersService.findById(id);
     return { message: 'User found with success!', user };
   }
 
   @Patch(':id')
   async updateUser(
-    @ExclusiveForUserWithId() { id, user: loggedUser },
+    @ExclusiveForUserWithId() id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     const user = await this.usersService.update(id, updateUserDto);
@@ -40,7 +40,7 @@ export class UsersController {
 
   @Patch(':id/password')
   async updateUserPassword(
-    @ExclusiveForUserWithId() { id, user: loggedUser },
+    @ExclusiveForUserWithId() id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,
   ) {
     const user = await this.usersService.updatePassword(
@@ -73,9 +73,7 @@ export class UsersController {
   }
 
   @Get(':id/mail/send')
-  async sendAccountConfirmationMail(
-    @ExclusiveForUserWithId() { id, user: loggedUser },
-  ) {
+  async sendAccountConfirmationMail(@ExclusiveForUserWithId() id: string) {
     const updatedUser = await this.usersService.sendUserConfirmationMailById(
       id,
     );

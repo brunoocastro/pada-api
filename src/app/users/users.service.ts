@@ -183,7 +183,7 @@ export class UsersService {
       createdAt: user.createdAt,
     });
 
-    const url = `${mailHelper.projectUrl}/user/${id}/mail/confirm/${token}`;
+    const url = `${this.mailService.projectUrl}/user/${id}/mail/confirm/${token}`;
 
     await this.mailService.sendConfirmAccountMail({
       confirmationUrl: url,
