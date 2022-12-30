@@ -187,7 +187,7 @@ export class UsersService {
 
     await this.mailService.sendConfirmAccountMail({
       confirmationUrl: url,
-      to: [{ email: user.email, name: user.name }],
+      to: { email: user.email, name: user.name },
     });
 
     const updatedUser = await this.update(id, { emailStatus: 'PENDING' });
