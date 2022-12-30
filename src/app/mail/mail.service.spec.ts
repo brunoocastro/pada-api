@@ -1,6 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Test, TestingModule } from '@nestjs/testing';
-import { of } from 'rxjs';
 import { SendConfirmAccountMailInterface } from './interface/send-confirm-account-mail.interface';
 import { MailService } from './mail.service';
 

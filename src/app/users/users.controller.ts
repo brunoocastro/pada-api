@@ -7,6 +7,10 @@ import {
   ParseUUIDPipe,
   UseGuards,
   Delete,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,6 +18,25 @@ import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt.guards';
 import { ExclusiveForUserWithId } from '../auth/decorators/user-exclusive.decorator';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { join, parse } from 'path';
+import { filesHelper } from '../../helpers/files.helper';
+
+const fileHelper = new filesHelper();
+const userPictureStorage = {
+  storage: diskStorage({
+    destination: '.' + fileHelper.userPicture.path,
+    filename: (req, file, cb) => {
+      console.log({ file });
+      const filename = `${fileHelper.userPicture.prefix}${req.params.id}`;
+
+      const extension: string = parse(file.originalname).ext;
+
+      cb(null, `${filename}${extension}`);
+    },
+  }),
+};
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
@@ -82,5 +105,28 @@ export class UsersController {
         'Confirmation mail sended with success! Access your account and confirm your account.',
       user: updatedUser,
     };
+  }
+
+  @Post(':id/picture/upload')
+  @UseInterceptors(FileInterceptor('file', userPictureStorage))
+  async uploadUserPicture(
+    @ExclusiveForUserWithId() id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const updatedUser = await this.updateUser(id, {
+      picture: file.filename,
+    });
+    return {
+      message: 'User picture successfully uploaded',
+      user: updatedUser,
+    };
+  }
+
+  @Get(':id/picture')
+  async getUserPicture(@ExclusiveForUserWithId() id: string, @Res() res) {
+    const user = await this.usersService.getExistentById(id);
+    return res.sendFile(
+      join(process.cwd(), `${fileHelper.userPicture.path}/${user.picture}`),
+    );
   }
 }

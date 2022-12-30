@@ -41,3 +41,4 @@ lerna-debug.log*
 /db
 /docker
 /.docker
+/uploads
