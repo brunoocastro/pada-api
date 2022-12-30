@@ -16,7 +16,6 @@ import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
 import { cryptoHelper } from '../../helpers/crypto.helper';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { mailHelper } from '../../helpers/mail.helper';
-import { matches } from 'class-validator';
 
 @Injectable()
 export class UsersService {
@@ -33,7 +32,7 @@ export class UsersService {
       excludeExtraneousValues: true,
     });
   }
-  async findByIdWithSensitiveData(
+  private async findByIdWithSensitiveData(
     id: string,
   ): Promise<UserWithSensitiveDataDto> {
     const possibleUser = await this.usersRepository.findById(id);
@@ -114,6 +113,9 @@ export class UsersService {
   ): Promise<UserResponseDto> {
     const currentUser = await this.findByIdWithSensitiveData(id);
 
+    if (updateUserPasswordDto.newPassword === updateUserPasswordDto.newPassword)
+      throw new BadRequestException('You need diferentes passwords to update.');
+
     if (
       !cryptoHelper.validatePassword(
         updateUserPasswordDto.oldPassword,
@@ -125,6 +127,7 @@ export class UsersService {
     currentUser.password = cryptoHelper.hashPassword(
       updateUserPasswordDto.newPassword,
     );
+
     const updatedUser = await this.usersRepository.updateById(id, currentUser);
 
     const updateResponse = plainToInstance(UserResponseDto, updatedUser, {
@@ -134,7 +137,10 @@ export class UsersService {
     return updateResponse;
   }
 
-  async confirmEmail(id: string, token: string): Promise<UserResponseDto> {
+  async confirmAccountWithToken(
+    id: string,
+    token: string,
+  ): Promise<UserResponseDto> {
     const user = await this.getExistentById(id);
 
     if (user.emailStatus === 'VERIFIED')
@@ -148,24 +154,24 @@ export class UsersService {
     });
 
     if (!decodedToken)
-      throw new BadRequestException('Confirmation token invalid! a');
+      throw new BadRequestException('Confirmation token invalid!');
 
     if (decodedToken.id !== user.id)
-      throw new BadRequestException('Confirmation token invalid! b');
+      throw new BadRequestException('Confirmation token invalid!');
     if (decodedToken.email !== user.email)
-      throw new BadRequestException('Confirmation token invalid! c');
+      throw new BadRequestException('Confirmation token invalid!');
     if (
       new Date(decodedToken.createdAt).toISOString() !==
       new Date(user.createdAt).toISOString()
     )
-      throw new BadRequestException('Confirmation token invalid! d');
+      throw new BadRequestException('Confirmation token invalid!');
 
     const updatedUser = await this.update(id, { emailStatus: 'VERIFIED' });
 
     return updatedUser;
   }
 
-  async sendConfirmationEmail(id: string): Promise<void> {
+  async sendUserConfirmationMailById(id: string): Promise<UserResponseDto> {
     const user = await this.getExistentById(id);
 
     if (user.emailStatus === 'VERIFIED')
@@ -184,7 +190,9 @@ export class UsersService {
       to: [{ email: user.email, name: user.name }],
     });
 
-    await this.update(id, { emailStatus: 'PENDING' });
+    const updatedUser = await this.update(id, { emailStatus: 'PENDING' });
+
+    return updatedUser;
   }
 
   async delete(id: string): Promise<void> {

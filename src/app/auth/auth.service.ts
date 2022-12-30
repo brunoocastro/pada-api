@@ -43,7 +43,9 @@ export class AuthService {
 
   async registerUser(userRegisterDto: RegisterUserDto) {
     const newUser = await this.usersService.create(userRegisterDto);
-    await this.usersService.sendConfirmationEmail(newUser.id);
-    return newUser;
+    const user = await this.usersService.sendUserConfirmationMailById(
+      newUser.id,
+    );
+    return user;
   }
 }

@@ -5,9 +5,6 @@
   "author": "tonelive",
   "private": false,
   "license": "UNLICENSED",
-  "engines": {
-    "node": "16.x"
-  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",

@@ -17,6 +17,7 @@ const newUserResponseDto: UserResponseDto = {
   id: randomUUID(),
   name: newUserPayloadDto.name,
   picture: newUserPayloadDto.picture,
+  role: 'USER',
 };
 
 describe('AuthController', () => {

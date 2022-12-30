@@ -11,6 +11,7 @@ export class AppController {
     );
     return new StreamableFile(termsFile, { type: '.pdf' });
   }
+
   @Get('privacy')
   getPrivacy(): StreamableFile {
     const termsFile = createReadStream(

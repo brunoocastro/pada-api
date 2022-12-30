@@ -10,9 +10,7 @@ import { UserResponseDto } from '../users/dto/user-response.dto';
 import { UserWithSensitiveDataDto } from '../users/dto/user-with-sensitive-data.dto';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
-import 'reflect-metadata';
 import { RegisterUserDto } from './dto/register.dto';
-import { UserEntity } from '../users/entities/user.entity';
 
 const userEmail = 'tonelive@yopmail.com';
 
@@ -21,6 +19,7 @@ const userData: UserResponseDto = {
   id: randomUUID(),
   name: 'Tonelive',
   picture: 'https://thispersondoesnotexist.com/',
+  role: 'USER',
 };
 
 const userWithSensitiveData: UserWithSensitiveDataDto = {
@@ -51,7 +50,9 @@ describe('AuthService', () => {
               ),
             }),
             create: jest.fn().mockResolvedValue(userData),
-            sendConfirmationEmail: jest.fn().mockResolvedValue(undefined),
+            sendUserConfirmationMailById: jest
+              .fn()
+              .mockResolvedValue({ ...userData, emailStatus: 'PENDING' }),
           },
         },
       ],
@@ -118,12 +119,15 @@ describe('AuthService', () => {
       const response = await authService.registerUser(registerPayload);
 
       // Assert
-      expect(response).toEqual(userData);
+      expect(response).toEqual({ ...userData, emailStatus: 'PENDING' });
       expect(response).not.toHaveProperty('password');
       expect(usersService.create).toBeCalledWith(registerPayload);
       expect(usersService.create).toBeCalledTimes(1);
-      expect(usersService.sendConfirmationEmail).toBeCalledWith(response.id);
-      expect(usersService.sendConfirmationEmail).toBeCalledTimes(1);
+      expect(usersService.sendUserConfirmationMailById).toBeCalledWith(
+        response.id,
+      );
+      expect(usersService.sendUserConfirmationMailById).toBeCalledTimes(1);
+      expect(response.emailStatus).toEqual('PENDING');
     });
 
     it('should throw bad request exception by service error', async () => {

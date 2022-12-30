@@ -6,13 +6,15 @@ import {
 import { AuthenticatedRequest } from '../interfaces/AuthenticatedRequest';
 
 export const ExclusiveForUserWithId = createParamDecorator(
-  (data: unknown, context: ExecutionContext): string => {
+  (data: unknown, context: ExecutionContext) => {
     // todo -> implementar permissão para administradores
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
     if (request.user.id !== request.params.id)
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(
+        'This data is exclusive for account owner.',
+      );
 
-    return request.params.id;
+    return { id: request.params.id, user: request.user };
   },
 );

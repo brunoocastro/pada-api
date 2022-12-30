@@ -39,3 +39,5 @@ lerna-debug.log*
 
 # Database data
 /db
+/docker
+/.docker

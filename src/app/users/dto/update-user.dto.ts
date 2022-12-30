@@ -1,4 +1,4 @@
-import { IsOptional } from 'class-validator';
+import { IsEmpty, IsOptional } from 'class-validator';
 import { UserEntity } from '../entities/user.entity';
 
 export class UpdateUserDto implements Partial<UserEntity> {
@@ -8,6 +8,6 @@ export class UpdateUserDto implements Partial<UserEntity> {
   @IsOptional()
   picture?: UserEntity['picture'];
 
-  @IsOptional()
+  @IsEmpty()
   emailStatus?: UserEntity['emailStatus'];
 }

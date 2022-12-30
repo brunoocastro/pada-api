@@ -18,4 +18,8 @@ export class UserResponseDto implements Partial<UserEntity> {
   @Expose()
   @IsNotEmpty()
   id: UserEntity['id'];
+
+  @Expose()
+  @IsNotEmpty()
+  role: UserEntity['role'];
 }

@@ -21,16 +21,27 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
-  async getUser(@Param('id', new ParseUUIDPipe()) id: string) {
+  async getUser(@ExclusiveForUserWithId() id: string) {
     const user = await this.usersService.findById(id);
     return { message: 'User found with success!', user };
   }
 
+  @Patch(':id')
+  async updateUser(
+    @ExclusiveForUserWithId() id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.usersService.update(id, updateUserDto);
+    return {
+      message: 'User updated with success!',
+      user,
+    };
+  }
+
   @Patch(':id/password')
   async updateUserPassword(
-    // @Param('id', new ParseUUIDPipe()) id: string,
+    @ExclusiveForUserWithId() id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,
-    @ExclusiveForUserWithId() id: string, //todo -> Testar funcionamento
   ) {
     const user = await this.usersService.updatePassword(
       id,
@@ -41,38 +52,35 @@ export class UsersController {
       user,
     };
   }
-  @Patch(':id')
-  async updateUser(
-    // @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateUserDto: UpdateUserDto,
-    @ExclusiveForUserWithId() id: string, //todo -> Testar funcionamento
-  ) {
-    const user = await this.usersService.update(id, updateUserDto);
-    return {
-      message: 'User updated with success!',
-      user,
-    };
-  }
 
   @Delete(':id')
-  async deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
+  async deleteUser(@ExclusiveForUserWithId() id: string) {
     await this.usersService.delete(id);
     return { message: 'User deleted with success!', id };
   }
 
   @IsPublic()
   @Get(':id/mail/confirm/:token')
-  async confirmMail(
+  async confirmAccountByMail(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Param('token') token: string,
   ) {
-    await this.usersService.confirmEmail(id, token);
-    return { message: 'Email confirmed with success!' };
+    const updatedUser = await this.usersService.confirmAccountWithToken(
+      id,
+      token,
+    );
+    return { message: 'Email confirmed with success!', user: updatedUser };
   }
 
   @Get(':id/mail/send')
-  async sendConfirmationMail(@Param('id', new ParseUUIDPipe()) id: string) {
-    await this.usersService.sendConfirmationEmail(id);
-    return { message: 'Email confirmed with success!' };
+  async sendAccountConfirmationMail(@ExclusiveForUserWithId() id: string) {
+    const updatedUser = await this.usersService.sendUserConfirmationMailById(
+      id,
+    );
+    return {
+      message:
+        'Confirmation mail sended with success! Access your account and confirm your account.',
+      user: updatedUser,
+    };
   }
 }

@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { EmailStatus, Role, User } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
 
 export class UserEntity implements User {
@@ -16,9 +16,9 @@ export class UserEntity implements User {
   @Expose()
   picture: string;
   @Expose()
-  emailStatus: User['emailStatus'];
+  emailStatus: EmailStatus;
   @Expose()
-  role: User['role'];
+  role: Role;
 
   @Exclude()
   password: string;
