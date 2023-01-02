@@ -50,9 +50,9 @@ model Adoption {
   breed    String?
   name     String?
   pictures Json
-  gender   Genders
+  gender   Genders @default(UNKNOWN)
 
-  adoptionState AdoptionStates
+  adoptionState AdoptionStates @default(INPROGRESS)
 
   // RELATIONS
   donorId String

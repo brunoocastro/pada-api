@@ -6,6 +6,7 @@ import { MailModule } from './mail/mail.module';
 import { JwtModule } from '@nestjs/jwt';
 import { DatabaseModule } from '../database/database.module';
 import { AppController } from './app.controller';
+import { AdoptionModule } from './adoption/adoption.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AppController } from './app.controller';
     AuthModule,
     MailModule,
     DatabaseModule,
+    AdoptionModule,
   ],
   providers: [],
   controllers: [AppController],

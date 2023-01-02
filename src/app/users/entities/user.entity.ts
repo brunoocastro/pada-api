@@ -12,13 +12,16 @@ export class UserEntity implements User {
   @Expose()
   email: string;
   @Expose()
+  emailStatus: EmailStatus;
+  @Expose()
+  role: Role;
+
+  @Expose()
   name: string;
   @Expose()
   picture: string;
   @Expose()
-  emailStatus: EmailStatus;
-  @Expose()
-  role: Role;
+  phone: string;
 
   @Exclude()
   password: string;
@@ -30,6 +33,7 @@ export class UserEntity implements User {
     this.email = user?.email;
     this.name = user?.name;
     this.picture = user?.picture;
+    this.phone = user?.phone;
     this.emailStatus = user?.emailStatus ?? 'UNVERIFIED';
     this.role = user?.role ?? 'USER';
     this.password = user?.password;

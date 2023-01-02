@@ -14,9 +14,9 @@ export class AppController {
 
   @Get('privacy')
   getPrivacy(): StreamableFile {
-    const termsFile = createReadStream(
+    const privacyFile = createReadStream(
       join(process.cwd(), 'public/pada-privacy.pdf'),
     );
-    return new StreamableFile(termsFile, { type: '.pdf' });
+    return new StreamableFile(privacyFile, { type: '.pdf' });
   }
 }
