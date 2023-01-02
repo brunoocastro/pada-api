@@ -14,7 +14,7 @@ describe('MailService', () => {
         {
           provide: MailerService,
           useValue: {
-            post: jest.fn(),
+            sendMail: jest.fn(),
           },
         },
       ],
@@ -40,14 +40,13 @@ describe('MailService', () => {
         confirmationUrl: 'teste.com',
       };
 
-      jest.spyOn(smtpService, 'sendMail').mockResolvedValue({
-        response: {
-          accepted: [mailProps.to.email],
-        },
+      jest.spyOn(smtpService, 'sendMail').mockResolvedValueOnce({
+        accepted: [mailProps.to.email],
       });
 
       //Act
       const result = await mailService.sendConfirmAccountMail(mailProps);
+
       // Assert
       expect(result).toBeTruthy();
       expect(smtpService.sendMail).toBeCalledTimes(1);

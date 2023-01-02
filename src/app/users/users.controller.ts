@@ -101,7 +101,7 @@ export class UsersController {
     );
     return {
       message:
-        'Confirmation mail sended with success! Access your account and confirm your account.',
+        'Confirmation mail sended with success! Access your email to confirm your account.',
       user: updatedUser,
     };
   }

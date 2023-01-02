@@ -12,7 +12,7 @@ export class MailService {
   constructor(private readonly smtpService: MailerService) {}
 
   private async sendMail(params: SendMailInterface): Promise<boolean> {
-    const response = await this.smtpService.sendMail({
+    const sendedMailResponse = await this.smtpService.sendMail({
       subject: params.subject,
       to: {
         address: params.to.email,
@@ -21,7 +21,7 @@ export class MailService {
       html: params.html,
     });
 
-    return response.accepted.includes(params.to.email);
+    return sendedMailResponse.accepted.includes(params.to.email);
   }
 
   async sendConfirmAccountMail({
