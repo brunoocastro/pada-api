@@ -12,10 +12,9 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
-import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
 import { cryptoHelper } from '../../helpers/crypto.helper';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
-import { mailHelper } from '../../helpers/mail.helper';
+import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
 
 @Injectable()
 export class UsersService {
@@ -28,7 +27,7 @@ export class UsersService {
   async findById(id: string): Promise<UserEntity> {
     const possibleUser = await this.usersRepository.findById(id);
 
-    return plainToInstance(UserEntity, possibleUser, {
+    return plainToInstance(UserEntity, possibleUser ?? null, {
       excludeExtraneousValues: true,
     });
   }
@@ -37,7 +36,7 @@ export class UsersService {
   ): Promise<UserWithSensitiveDataDto> {
     const possibleUser = await this.usersRepository.findById(id);
 
-    return plainToInstance(UserWithSensitiveDataDto, possibleUser, {
+    return plainToInstance(UserWithSensitiveDataDto, possibleUser ?? null, {
       excludeExtraneousValues: true,
     });
   }
@@ -45,17 +44,7 @@ export class UsersService {
   async findByEmail(email: string): Promise<UserEntity> {
     const possibleUser = await this.usersRepository.findByEmail(email);
 
-    return plainToInstance(UserEntity, possibleUser, {
-      excludeExtraneousValues: true,
-    });
-  }
-
-  async findByEmailWithSensitiveData(
-    email: string,
-  ): Promise<UserWithSensitiveDataDto> {
-    const possibleUser = await this.usersRepository.findByEmail(email);
-
-    return plainToInstance(UserWithSensitiveDataDto, possibleUser, {
+    return plainToInstance(UserEntity, possibleUser ?? null, {
       excludeExtraneousValues: true,
     });
   }
@@ -85,6 +74,12 @@ export class UsersService {
     });
 
     return createResponse;
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.getExistentById(id);
+
+    await this.usersRepository.deleteById(id);
   }
 
   async update(
@@ -193,11 +188,5 @@ export class UsersService {
     const updatedUser = await this.update(id, { emailStatus: 'PENDING' });
 
     return updatedUser;
-  }
-
-  async delete(id: string): Promise<void> {
-    await this.getExistentById(id);
-
-    await this.usersRepository.deleteById(id);
   }
 }

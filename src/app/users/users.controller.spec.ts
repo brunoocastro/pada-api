@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersController } from './users.controller';

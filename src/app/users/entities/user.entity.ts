@@ -30,8 +30,8 @@ export class UserEntity implements User {
     this.email = user?.email;
     this.name = user?.name;
     this.picture = user?.picture;
-    this.emailStatus = user?.emailStatus;
-    this.role = user?.role;
+    this.emailStatus = user?.emailStatus ?? 'UNVERIFIED';
+    this.role = user?.role ?? 'USER';
     this.password = user?.password;
   }
 }

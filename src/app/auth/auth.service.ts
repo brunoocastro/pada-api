@@ -4,6 +4,8 @@ import { JwtService } from '@nestjs/jwt';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { cryptoHelper } from '../../helpers/crypto.helper';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import { UserWithSensitiveDataDto } from '../users/dto/user-with-sensitive-data.dto';
+import { UsersRepository } from '../users/users.repository';
 import { UsersService } from '../users/users.service';
 import { RegisterUserDto } from './dto/register.dto';
 
@@ -12,6 +14,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private usersRepository: UsersRepository,
   ) {}
 
   private async generateUserToken(userProps: UserResponseDto) {
@@ -19,9 +22,7 @@ export class AuthService {
   }
 
   async validateUserLogin(email: string, password: string): Promise<any> {
-    const possibleUser = await this.usersService.findByEmailWithSensitiveData(
-      email,
-    );
+    const possibleUser = await this.getUserWithSensitiveDataByEmail(email);
 
     if (!possibleUser) throw new UnauthorizedException();
 
@@ -51,5 +52,15 @@ export class AuthService {
     } catch {
       return newUser;
     }
+  }
+
+  private async getUserWithSensitiveDataByEmail(
+    email: string,
+  ): Promise<UserWithSensitiveDataDto> {
+    const possibleUser = await this.usersRepository.findByEmail(email);
+
+    return plainToInstance(UserWithSensitiveDataDto, possibleUser ?? null, {
+      excludeExtraneousValues: true,
+    });
   }
 }

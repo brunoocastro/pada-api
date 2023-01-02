@@ -5,9 +5,10 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { DatabaseModule } from '../../database/database.module';
 
 @Module({
-  imports: [UsersModule, PassportModule],
+  imports: [UsersModule, PassportModule, DatabaseModule],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],
 })
