@@ -17,12 +17,15 @@ model User {
 
   email       String      @unique
   emailStatus EmailStatus @default(UNVERIFIED)
-  role        Role        @default(USER)
-  name        String
-  picture     String?
   password    String
 
+  role    Role    @default(USER)
+  name    String
+  picture String?
+  phone   String?
+
   // RELATIONS
+  donor Adoption[]
 
   @@map("users")
 }
@@ -36,4 +39,36 @@ enum EmailStatus {
 enum Role {
   ADMIN
   USER
+}
+
+model Adoption {
+  id        String   @id @unique @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  species  String
+  breed    String?
+  name     String?
+  pictures Json
+  gender   Genders
+
+  adoptionState AdoptionStates
+
+  // RELATIONS
+  donorId String
+  donor   User   @relation(fields: [donorId], references: [id], onDelete: Cascade)
+
+  @@map("adoptions")
+}
+
+enum Genders {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+enum AdoptionStates {
+  INPROGRESS
+  ADOPTED
+  CANCELED
 }
