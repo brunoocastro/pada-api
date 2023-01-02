@@ -99,13 +99,6 @@ describe('AuthService', () => {
           userWithSensitiveData.password,
         );
 
-      console.log({
-        resultWithoutToken,
-        userData,
-        userRawData,
-        userWithSensitiveData,
-      });
-
       // Assert
       expect(resultWithoutToken).toEqual(userData);
       expect(token).toEqual(jwtService.sign(resultWithoutToken));
@@ -144,7 +137,6 @@ describe('AuthService', () => {
     it('should register user, send confirmation mail and return user data', async () => {
       // Act
       const response = await authService.registerUser(registerPayload);
-      console.log({ response });
 
       // Assert
       expect(response).toEqual({ ...userData, emailStatus: 'PENDING' });

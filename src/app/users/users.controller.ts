@@ -28,7 +28,6 @@ const userPictureStorage = {
   storage: diskStorage({
     destination: '.' + fileHelper.userPicture.path,
     filename: (req, file, cb) => {
-      console.log({ file });
       const filename = `${fileHelper.userPicture.prefix}${req.params.id}`;
 
       const extension: string = parse(file.originalname).ext;

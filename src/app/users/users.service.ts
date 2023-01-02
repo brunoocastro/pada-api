@@ -108,8 +108,8 @@ export class UsersService {
   ): Promise<UserResponseDto> {
     const currentUser = await this.findByIdWithSensitiveData(id);
 
-    if (updateUserPasswordDto.newPassword === updateUserPasswordDto.newPassword)
-      throw new BadRequestException('You need diferentes passwords to update.');
+    if (updateUserPasswordDto.newPassword === updateUserPasswordDto.oldPassword)
+      throw new BadRequestException('You need different passwords to update.');
 
     if (
       !cryptoHelper.validatePassword(
@@ -117,7 +117,7 @@ export class UsersService {
         currentUser.password,
       )
     )
-      throw new UnauthorizedException("Password doesn't matches.");
+      throw new UnauthorizedException("Passwords doesn't matches.");
 
     currentUser.password = cryptoHelper.hashPassword(
       updateUserPasswordDto.newPassword,
