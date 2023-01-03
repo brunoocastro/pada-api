@@ -1,4 +1,7 @@
-import { AdoptionQueryParams } from '../app/adoption/interfaces/DefaultQueryParams.interface';
+import {
+  AdoptionOrderingOptions,
+  AdoptionQueryParams,
+} from '../app/adoption/interfaces/DefaultQueryParams.interface';
 
 export const databaseHelper = {
   getSelectorParams: (canSeeDonorInfo = false) => ({
@@ -29,18 +32,19 @@ export const databaseHelper = {
     page_size,
     search,
     only_available,
+    ordering,
   }: AdoptionQueryParams) => ({
     where: {
       ...(search
         ? {
-            OR: [
-              { name: { contains: search } },
-              { breed: { contains: search } },
-            ],
+            OR: AdoptionOrderingOptions.forEach((param) => ({
+              [param]: { contains: search },
+            })),
           }
         : {}),
       adoptionState: only_available ? 'INPROGRESS' : {},
     },
+    orderBy: ordering,
     skip: (page - 1) * page_size,
     take: page_size,
   }),

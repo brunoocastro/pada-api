@@ -9,21 +9,26 @@ export abstract class AdoptionRepository {
     id: AdoptionEntity['id'],
     canSeeDonorInfo: boolean,
   ): Promise<Partial<AdoptionEntity>>;
+
   abstract findAll(
     canSeeDonorInfo: boolean,
     params: AdoptionQueryParams,
   ): Promise<DefaultAdoptionsResponse<AdoptionEntity>>;
+
   abstract findAllPerUser(
     userId: string,
     params: AdoptionQueryParams,
   ): Promise<DefaultAdoptionsResponse<AdoptionEntity>>;
+
   abstract create(
     id: string,
     adoption: CreateAdoptionDto,
   ): Promise<AdoptionEntity>;
+
   abstract updateById(
     id: AdoptionEntity['id'],
     updatedAdoption: UpdateAdoptionDto,
   ): Promise<AdoptionEntity>;
+
   abstract deleteById(id: AdoptionEntity['id']): Promise<void>;
 }
