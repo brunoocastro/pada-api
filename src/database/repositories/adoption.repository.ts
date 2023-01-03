@@ -3,39 +3,28 @@ import { AdoptionRepository } from '../../app/adoption/adoption.repository';
 import { AdoptionEntity } from '../../app/adoption/entities/adoption.entity';
 import { DefaultAdoptionsResponse } from '../../app/adoption/interfaces/DefaultAdoptionsResponse.interface';
 import { AdoptionQueryParams } from '../../app/adoption/interfaces/DefaultQueryParams.interface';
+import { databaseHelper } from '../../helpers/database.helper';
 import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class AdoptionPrismaRepository implements AdoptionRepository {
   constructor(private readonly prismaService: PrismaService) {}
+
   async findAllPerUser(
     userId: string,
-    { page, page_size, search }: AdoptionQueryParams,
+    params: AdoptionQueryParams,
   ): Promise<DefaultAdoptionsResponse<AdoptionEntity>> {
-    const baseParams = {
-      where: {
-        ...(search
-          ? {
-              OR: [
-                { name: { contains: search } },
-                { breed: { contains: search } },
-              ],
-            }
-          : {}),
-        donorId: userId,
-      },
-      skip: (page - 1) * page_size,
-      take: page_size,
-    };
+    const baseParams = databaseHelper.getFindManyParams(params);
 
-    const userAdoptions = await this.prismaService.adoption.findMany(
-      baseParams,
-    );
+    const userAdoptions = await this.prismaService.adoption.findMany({
+      ...baseParams,
+      where: { adoptionState: {} },
+    });
     const total = await this.prismaService.adoption.count(baseParams);
 
     return {
-      page,
-      page_size,
+      page: params.page,
+      page_size: params.page_size,
       total,
       registers: userAdoptions,
     };
@@ -43,69 +32,35 @@ export class AdoptionPrismaRepository implements AdoptionRepository {
 
   async findAll(
     canSeeDonorInfo = false,
-    { ordering, page, page_size, search }: AdoptionQueryParams,
+    params: AdoptionQueryParams,
   ): Promise<DefaultAdoptionsResponse<AdoptionEntity>> {
-    const baseParams = {
-      where: {
-        ...(search
-          ? {
-              OR: [
-                { name: { contains: search } },
-                { breed: { contains: search } },
-              ],
-            }
-          : {}),
-      },
-      skip: (page - 1) * page_size,
-      take: page_size,
-    };
+    const baseParams = databaseHelper.getFindManyParams(params);
 
-    const selectParams = {
-      select: {
-        adoptionState: true,
-        breed: true,
-        gender: true,
-        id: true,
-        name: true,
-        pictures: true,
-        species: true,
-        donorId: canSeeDonorInfo,
-        donor: canSeeDonorInfo
-          ? {
-              select: {
-                email: true,
-                password: false,
-                name: true,
-                id: true,
-                phone: true,
-              },
-            }
-          : false,
-      },
-    };
+    const selectParams = databaseHelper.getSelectorParams(canSeeDonorInfo);
 
     const publicAdoptions = await this.prismaService.adoption.findMany({
       ...baseParams,
       ...selectParams,
-      where: {
-        ...baseParams.where,
-        adoptionState: 'INPROGRESS',
-      },
     });
 
     const total = await this.prismaService.adoption.count(baseParams);
 
     return {
-      page,
-      page_size,
+      page: params.page,
+      page_size: params.page_size,
       total,
       registers: publicAdoptions,
     };
   }
 
-  async findById(id: string): Promise<AdoptionEntity> {
+  async findById(
+    id: string,
+    canSeeDonorInfo = false,
+  ): Promise<Partial<AdoptionEntity>> {
+    const selectParams = databaseHelper.getSelectorParams(canSeeDonorInfo);
     return await this.prismaService.adoption.findUnique({
       where: { id },
+      ...selectParams,
     });
   }
 

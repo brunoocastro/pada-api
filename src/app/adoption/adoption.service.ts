@@ -16,7 +16,7 @@ export class AdoptionService {
   }
 
   async getExistentById(id: string) {
-    const possibleAdoption = this.findOne(id);
+    const possibleAdoption = await this.findOne(id, true);
 
     if (!possibleAdoption)
       throw new NotFoundException('This adoption does not exists.');
@@ -49,8 +49,8 @@ export class AdoptionService {
     return allAdoptions;
   }
 
-  findOne(id: string) {
-    return this.adoptionRepository.findById(id);
+  findOne(id: string, canSeeDonorInfo = false) {
+    return this.adoptionRepository.findById(id, canSeeDonorInfo);
   }
 
   update(id: string, updateAdoptionDto: UpdateAdoptionDto) {

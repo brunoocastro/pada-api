@@ -7,4 +7,5 @@ export interface AdoptionQueryParams {
   ordering: {
     [key in typeof AdoptionOrderingOptions[number]]: 'asc' | 'desc';
   }[];
+  only_available: boolean;
 }

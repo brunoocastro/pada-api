@@ -5,7 +5,10 @@ import { DefaultAdoptionsResponse } from './interfaces/DefaultAdoptionsResponse.
 import { AdoptionQueryParams } from './interfaces/DefaultQueryParams.interface';
 
 export abstract class AdoptionRepository {
-  abstract findById(id: AdoptionEntity['id']): Promise<AdoptionEntity>;
+  abstract findById(
+    id: AdoptionEntity['id'],
+    canSeeDonorInfo: boolean,
+  ): Promise<Partial<AdoptionEntity>>;
   abstract findAll(
     canSeeDonorInfo: boolean,
     params: AdoptionQueryParams,
