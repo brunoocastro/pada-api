@@ -6,6 +6,7 @@ import {
 import { AdoptionRepository } from './adoption.repository';
 import { CreateAdoptionDto } from './dto/create-adoption.dto';
 import { UpdateAdoptionDto } from './dto/update-adoption.dto';
+import { AdoptionEntity } from './entities/adoption.entity';
 import { AdoptionQueryParams } from './interfaces/DefaultQueryParams.interface';
 
 @Injectable()
@@ -15,8 +16,8 @@ export class AdoptionService {
     return this.adoptionRepository.create(id, createAdoptionDto);
   }
 
-  async getExistentById(id: string) {
-    const possibleAdoption = await this.findOne(id, true);
+  async getExistentById(id: string, hasVerifiedAccount = false) {
+    const possibleAdoption = await this.findOne(id, hasVerifiedAccount);
 
     if (!possibleAdoption)
       throw new NotFoundException('This adoption does not exists.');
@@ -24,13 +25,15 @@ export class AdoptionService {
     return possibleAdoption;
   }
 
-  async validateDonorWithId(
+  async validateDonorWithIdAndReturnAdoption(
     id: string,
     possibleDonorId: string,
-  ): Promise<void> {
-    const { donorId } = await this.getExistentById(id);
-    if (donorId !== possibleDonorId)
+  ): Promise<Partial<AdoptionEntity>> {
+    const adoption = await this.getExistentById(id, true);
+    if (adoption.donorId !== possibleDonorId)
       throw new UnauthorizedException('This action is only to donor');
+
+    return adoption;
   }
 
   async getAllFromUser(userId: string, params: AdoptionQueryParams) {

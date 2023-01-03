@@ -11,6 +11,9 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -110,7 +113,15 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file', userPictureStorage))
   async uploadUserPicture(
     @ExclusiveForUserWithId() id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+          new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
   ) {
     const updatedUser = await this.updateUser(id, {
       picture: file.filename,

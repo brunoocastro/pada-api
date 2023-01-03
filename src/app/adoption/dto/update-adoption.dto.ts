@@ -6,9 +6,9 @@ import { CreateAdoptionDto } from './create-adoption.dto';
 
 export class UpdateAdoptionDto extends PartialType(CreateAdoptionDto) {
   @Exclude()
-  donorId: AdoptionEntity['donorId'];
+  donorId?: AdoptionEntity['donorId'];
 
   @Expose()
   @IsOptional()
-  adoptionState: AdoptionEntity['adoptionState'];
+  adoptionState?: AdoptionEntity['adoptionState'];
 }
