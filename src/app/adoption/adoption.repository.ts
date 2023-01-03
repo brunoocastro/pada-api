@@ -1,11 +1,23 @@
 import { CreateAdoptionDto } from './dto/create-adoption.dto';
 import { UpdateAdoptionDto } from './dto/update-adoption.dto';
 import { AdoptionEntity } from './entities/adoption.entity';
+import { DefaultAdoptionsResponse } from './interfaces/DefaultAdoptionsResponse.interface';
+import { AdoptionQueryParams } from './interfaces/DefaultQueryParams.interface';
 
 export abstract class AdoptionRepository {
   abstract findById(id: AdoptionEntity['id']): Promise<AdoptionEntity>;
-  abstract findAll(): Promise<AdoptionEntity[]>;
-  abstract create(adoption: CreateAdoptionDto): Promise<AdoptionEntity>;
+  abstract findAll(
+    canSeeDonorInfo: boolean,
+    params: AdoptionQueryParams,
+  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>>;
+  abstract findAllPerUser(
+    userId: string,
+    params: AdoptionQueryParams,
+  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>>;
+  abstract create(
+    id: string,
+    adoption: CreateAdoptionDto,
+  ): Promise<AdoptionEntity>;
   abstract updateById(
     id: AdoptionEntity['id'],
     updatedAdoption: UpdateAdoptionDto,

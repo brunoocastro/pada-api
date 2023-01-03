@@ -1,6 +1,12 @@
 import { Adoption, AdoptionStates, Genders, Prisma } from '@prisma/client';
 import { Expose } from 'class-transformer';
 
+export enum AdoptionStatesEnum {
+  MALE,
+  FEMALE,
+  UNKNOWN,
+}
+
 export class AdoptionEntity implements Adoption {
   @Expose()
   id: string;
