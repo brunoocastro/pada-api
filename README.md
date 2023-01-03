@@ -1,9 +1,7 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
+  <a href="http://github.com/brunoocastro/pada-api" target="blank"><img src="./public/pada.png" width="200" alt="Pada Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
 
   <p align="center">An open-source project to facilitate pet adoption.</p>
     <p align="center">
@@ -45,6 +43,6 @@ $ npm run start:prod
 ## Stay in touch
 
 - Author - [Bruno "Tonelive" Castro](https://linked.in/brunoocastro)
-- GitHub - [https://github.com/brunoocastro](https://github.com/brunoocastro)
+- GitHub - [https://github.com/brunoocastro/pada-api](https://github.com/brunoocastro/pada-api)
 - Twitter - [@otonelive](https://twitter.com/otonelive)
 - Twitch - [@tonelive](https://twitch.com/tonelive)
