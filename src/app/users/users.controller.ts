@@ -85,26 +85,26 @@ export class UsersController {
   }
 
   @IsPublic()
-  @Get(':id/mail/confirm/:token')
-  async confirmAccountByMail(
+  @Get(':id/verify/:token')
+  async verifyAccountByMail(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Param('token') token: string,
   ) {
-    const updatedUser = await this.usersService.confirmAccountWithToken(
+    const updatedUser = await this.usersService.verifyAccountWithToken(
       id,
       token,
     );
-    return { message: 'Email confirmed with success!', user: updatedUser };
+    return { message: 'Account verified with success!', user: updatedUser };
   }
 
   @Get(':id/mail/send')
-  async sendAccountConfirmationMail(@ExclusiveForUserWithId() id: string) {
-    const updatedUser = await this.usersService.sendUserConfirmationMailById(
+  async sendAccountVerificationMail(@ExclusiveForUserWithId() id: string) {
+    const updatedUser = await this.usersService.sendAccountVerificationMailById(
       id,
     );
     return {
       message:
-        'Confirmation mail sended with success! Access your email to confirm your account.',
+        'Verification mail sended with success! Access your email an access a received link to verify your account.',
       user: updatedUser,
     };
   }

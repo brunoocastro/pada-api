@@ -10,6 +10,7 @@ const newUserPayloadDto: RegisterUserDto = {
   name: 'Tonelive',
   password: 'Senha123@',
   picture: 'https://thispersondoesnotexist.com/',
+  phone: '55998765432',
 };
 
 const newUserResponseDto: UserResponseDto = {

@@ -28,10 +28,10 @@ describe('UsersController', () => {
             update: jest.fn(),
             updatePassword: jest.fn().mockResolvedValue(loggedUser),
             delete: jest.fn().mockResolvedValue(undefined),
-            confirmAccountWithToken: jest
+            verifyAccountWithToken: jest
               .fn()
               .mockResolvedValue({ ...loggedUser, emailStatus: 'VERIFIED' }),
-            sendUserConfirmationMailById: jest
+            sendAccountVerificationMailById: jest
               .fn()
               .mockResolvedValue({ ...loggedUser, emailStatus: 'PENDING' }),
           },
@@ -161,7 +161,7 @@ describe('UsersController', () => {
   describe('sendUserConfirmationMail', () => {
     it('should send successfully a confirmation account mail', async () => {
       //Act
-      const result = await usersController.sendAccountConfirmationMail(
+      const result = await usersController.sendAccountVerificationMail(
         loggedUser.id,
       );
 
@@ -170,8 +170,8 @@ describe('UsersController', () => {
       expect(result).toHaveProperty('user');
       expect(result.user.emailStatus).toEqual('PENDING');
 
-      expect(usersService.sendUserConfirmationMailById).toBeCalledTimes(1);
-      expect(usersService.sendUserConfirmationMailById).toBeCalledWith(
+      expect(usersService.sendAccountVerificationMailById).toBeCalledTimes(1);
+      expect(usersService.sendAccountVerificationMailById).toBeCalledWith(
         loggedUser.id,
       );
     });
@@ -179,12 +179,12 @@ describe('UsersController', () => {
     it('should throw an exception', () => {
       //Arrange
       jest
-        .spyOn(usersService, 'sendUserConfirmationMailById')
+        .spyOn(usersService, 'sendAccountVerificationMailById')
         .mockRejectedValueOnce(new Error());
 
       //Assert
       expect(
-        usersController.sendAccountConfirmationMail,
+        usersController.sendAccountVerificationMail,
       ).rejects.toThrowError();
     });
   });
@@ -194,7 +194,7 @@ describe('UsersController', () => {
       const fakeToken = randomUUID();
 
       //Act
-      const result = await usersController.confirmAccountByMail(
+      const result = await usersController.verifyAccountByMail(
         loggedUser.id,
         fakeToken,
       );
@@ -203,8 +203,8 @@ describe('UsersController', () => {
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user.emailStatus).toEqual('VERIFIED');
-      expect(usersService.confirmAccountWithToken).toBeCalledTimes(1);
-      expect(usersService.confirmAccountWithToken).toBeCalledWith(
+      expect(usersService.verifyAccountWithToken).toBeCalledTimes(1);
+      expect(usersService.verifyAccountWithToken).toBeCalledWith(
         loggedUser.id,
         fakeToken,
       );
@@ -213,11 +213,11 @@ describe('UsersController', () => {
     it('should throw an exception', () => {
       //Arrange
       jest
-        .spyOn(usersService, 'confirmAccountWithToken')
+        .spyOn(usersService, 'verifyAccountWithToken')
         .mockRejectedValueOnce(new Error());
 
       //Assert
-      expect(usersController.confirmAccountByMail).rejects.toThrowError();
+      expect(usersController.verifyAccountByMail).rejects.toThrowError();
     });
   });
 });

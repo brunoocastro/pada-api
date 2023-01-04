@@ -21,7 +21,7 @@ export abstract class AdoptionRepository {
   ): Promise<DefaultAdoptionsResponse<AdoptionEntity>>;
 
   abstract create(
-    id: string,
+    donorId: string,
     adoption: CreateAdoptionDto,
   ): Promise<AdoptionEntity>;
 

@@ -1,4 +1,4 @@
-export interface SendConfirmAccountMailInterface {
+export interface SendAccountVerificationMail {
   to: {
     name: string;
     email: string;

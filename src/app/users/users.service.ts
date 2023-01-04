@@ -15,6 +15,7 @@ import { UsersRepository } from './users.repository';
 import { cryptoHelper } from '../../helpers/crypto.helper';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
+import { mailHelper } from '../../helpers/mail.helper';
 
 @Injectable()
 export class UsersService {
@@ -132,45 +133,45 @@ export class UsersService {
     return updateResponse;
   }
 
-  async confirmAccountWithToken(
+  async verifyAccountWithToken(
     id: string,
     token: string,
   ): Promise<UserResponseDto> {
     const user = await this.getExistentById(id);
 
     if (user.emailStatus === 'VERIFIED')
-      throw new BadRequestException('Email already verified!');
+      throw new BadRequestException(mailHelper.errorTexts.alreadyVerified);
 
     if (user.emailStatus === 'UNVERIFIED')
-      throw new BadRequestException('Confirmation token invalid!');
+      throw new BadRequestException(mailHelper.errorTexts.invalidToken);
 
     const decodedToken = this.jwtService.verify(token, {
       ignoreExpiration: true,
     });
 
     if (!decodedToken)
-      throw new BadRequestException('Confirmation token invalid!');
+      throw new BadRequestException(mailHelper.errorTexts.invalidToken);
 
     if (decodedToken.id !== user.id)
-      throw new BadRequestException('Confirmation token invalid!');
+      throw new BadRequestException(mailHelper.errorTexts.invalidToken);
     if (decodedToken.email !== user.email)
-      throw new BadRequestException('Confirmation token invalid!');
+      throw new BadRequestException(mailHelper.errorTexts.invalidToken);
     if (
       new Date(decodedToken.createdAt).toISOString() !==
       new Date(user.createdAt).toISOString()
     )
-      throw new BadRequestException('Confirmation token invalid!');
+      throw new BadRequestException(mailHelper.errorTexts.invalidToken);
 
     const updatedUser = await this.update(id, { emailStatus: 'VERIFIED' });
 
     return updatedUser;
   }
 
-  async sendUserConfirmationMailById(id: string): Promise<UserResponseDto> {
+  async sendAccountVerificationMailById(id: string): Promise<UserResponseDto> {
     const user = await this.getExistentById(id);
 
     if (user.emailStatus === 'VERIFIED')
-      throw new BadRequestException('Email already verified!');
+      throw new BadRequestException(mailHelper.errorTexts.alreadyVerified);
 
     const token = this.jwtService.sign({
       id: user.id,
@@ -178,9 +179,9 @@ export class UsersService {
       createdAt: user.createdAt,
     });
 
-    const url = `${this.mailService.projectUrl}/user/${id}/mail/confirm/${token}`;
+    const url = `${this.mailService.projectUrl}/user/${id}/verify/${token}`;
 
-    await this.mailService.sendConfirmAccountMail({
+    await this.mailService.sendAccountVerificationMail({
       confirmationUrl: url,
       to: { email: user.email, name: user.name },
     });

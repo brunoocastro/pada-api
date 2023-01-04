@@ -3,6 +3,7 @@
 </p>
 
 
+  <h1 align="center">Projeto Amigo dos Animais - PADA</h1>
   <p align="center">An open-source project to facilitate pet adoption.</p>
     <p align="center">
 

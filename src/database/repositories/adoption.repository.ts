@@ -16,11 +16,18 @@ export class AdoptionPrismaRepository implements AdoptionRepository {
   ): Promise<DefaultAdoptionsResponse<AdoptionEntity>> {
     const baseParams = databaseHelper.getFindManyParams(params);
 
-    const userAdoptions = await this.prismaService.adoption.findMany({
+    const paramsWithUserId = {
       ...baseParams,
-      where: { adoptionState: {} },
-    });
-    const total = await this.prismaService.adoption.count(baseParams);
+      where: {
+        ...baseParams.where,
+        donorId: userId,
+      },
+    };
+
+    const userAdoptions = await this.prismaService.adoption.findMany(
+      paramsWithUserId,
+    );
+    const total = await this.prismaService.adoption.count(paramsWithUserId);
 
     return {
       page: params.page,
@@ -64,11 +71,14 @@ export class AdoptionPrismaRepository implements AdoptionRepository {
     });
   }
 
-  async create(id: string, adoption: AdoptionEntity): Promise<AdoptionEntity> {
+  async create(
+    donorId: string,
+    adoption: AdoptionEntity,
+  ): Promise<AdoptionEntity> {
     return await this.prismaService.adoption.create({
       data: {
         ...adoption,
-        donorId: id,
+        donorId: donorId,
       },
     });
   }

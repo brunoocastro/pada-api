@@ -1,6 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SendConfirmAccountMailInterface } from './interface/send-confirm-account-mail.interface';
+import { SendAccountVerificationMail } from './interface/send-account-verification-mail.interface';
 import { MailService } from './mail.service';
 
 describe('MailService', () => {
@@ -29,10 +29,10 @@ describe('MailService', () => {
     expect(smtpService).toBeDefined();
   });
 
-  describe('sendConfirmAccountMail', () => {
+  describe('sendAccountVerificationMail', () => {
     it('should send an account confirmation email with success', async () => {
       //Arrange
-      const mailProps: SendConfirmAccountMailInterface = {
+      const mailProps: SendAccountVerificationMail = {
         to: {
           name: 'cliente',
           email: 'cliente@yopmail.com',
@@ -45,7 +45,7 @@ describe('MailService', () => {
       });
 
       //Act
-      const result = await mailService.sendConfirmAccountMail(mailProps);
+      const result = await mailService.sendAccountVerificationMail(mailProps);
 
       // Assert
       expect(result).toBeTruthy();

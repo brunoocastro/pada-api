@@ -19,20 +19,20 @@ import { randomUUID } from 'node:crypto';
 import { diskStorage } from 'multer';
 import { parse } from 'path';
 import { filesHelper } from '../../helpers/files.helper';
-import { HasConfirmedAccount } from '../auth/decorators/confirmed-account.decorator';
+import { HasVerifiedAccount } from '../auth/decorators/verified-account.decorator';
 import { IsPublic } from '../auth/decorators/is-public.decorator';
 import { LoggedUser } from '../auth/decorators/logged-user.decorator';
 import { ExclusiveForUserWithId } from '../auth/decorators/user-exclusive.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt.guards';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { UserEntity } from '../users/entities/user.entity';
-import { UsersService } from '../users/users.service';
 import { AdoptionService } from './adoption.service';
 import { ParseQueryParams } from './decorators/parse-query-params.decorator';
 import { CreateAdoptionDto } from './dto/create-adoption.dto';
 import { UpdateAdoptionDto } from './dto/update-adoption.dto';
 import { AdoptionQueryParams } from './interfaces/DefaultQueryParams.interface';
 import { join } from 'node:path';
+import { UsersService } from '../users/users.service';
 
 const fileHelper = new filesHelper();
 const adoptionPictureStorage = {
@@ -55,23 +55,20 @@ const adoptionPictureStorage = {
 export class AdoptionController {
   constructor(
     private readonly adoptionService: AdoptionService,
-    private readonly userService: UsersService,
+    private readonly usersService: UsersService,
   ) {}
 
   @Post()
-  create(
+  async createAdoption(
     @Body() createAdoptionDto: CreateAdoptionDto,
-    @HasConfirmedAccount() user: UserResponseDto,
+    @HasVerifiedAccount() donor: UserResponseDto,
   ) {
-    return this.adoptionService.create(user.id, createAdoptionDto);
+    return await this.adoptionService.create(donor.id, createAdoptionDto);
   }
 
   @IsPublic()
   @Get('public')
-  async getAllPublic(
-    @LoggedUser() user: UserEntity,
-    @ParseQueryParams() params: AdoptionQueryParams,
-  ) {
+  async getAllPublic(@ParseQueryParams() params: AdoptionQueryParams) {
     return await this.adoptionService.findAll(false, params);
   }
 
@@ -87,44 +84,39 @@ export class AdoptionController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @LoggedUser() user: UserResponseDto) {
-    return this.adoptionService.getExistentById(
+  async findOne(@Param('id') id: string, @LoggedUser() donor: UserResponseDto) {
+    return await this.adoptionService.getExistentById(
       id,
-      user.emailStatus === 'VERIFIED',
+      donor.emailStatus === 'VERIFIED',
     );
   }
 
-  @Get('user/:id')
-  async findUserAdoptions(
-    @ExclusiveForUserWithId() userId: string,
+  @Get('donor/:id')
+  async findDonorAdoptions(
+    @ExclusiveForUserWithId() donorId: string,
     @ParseQueryParams() params: AdoptionQueryParams,
   ) {
-    return await this.adoptionService.getAllFromUser(userId, params);
+    await this.usersService.getExistentById(donorId);
+    return await this.adoptionService.getAllFromDonor(donorId, params);
   }
 
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateAdoptionDto: UpdateAdoptionDto,
-    @HasConfirmedAccount() user: UserResponseDto,
+    @HasVerifiedAccount() donor: UserResponseDto,
   ) {
-    await this.adoptionService.validateDonorWithIdAndReturnAdoption(
-      id,
-      user.id,
-    );
-    return await this.adoptionService.update(id, updateAdoptionDto);
+    await this.adoptionService.validateDonorAndReturnAdoption(id, donor.id);
+    return await this.adoptionService.updateById(id, updateAdoptionDto);
   }
 
   @Delete(':id')
   async remove(
     @Param('id') id: string,
-    @HasConfirmedAccount() user: UserResponseDto,
+    @HasVerifiedAccount() donor: UserResponseDto,
   ) {
-    await this.adoptionService.validateDonorWithIdAndReturnAdoption(
-      id,
-      user.id,
-    );
-    return await this.adoptionService.remove(id);
+    await this.adoptionService.validateDonorAndReturnAdoption(id, donor.id);
+    return await this.adoptionService.removeById(id);
   }
 
   @Post(':id/picture/upload')
@@ -140,20 +132,19 @@ export class AdoptionController {
       }),
     )
     file: Express.Multer.File,
-    @HasConfirmedAccount() user: UserResponseDto,
+    @HasVerifiedAccount() donor: UserResponseDto,
   ) {
-    const adoption =
-      await this.adoptionService.validateDonorWithIdAndReturnAdoption(
-        id,
-        user.id,
-      );
+    const adoption = await this.adoptionService.validateDonorAndReturnAdoption(
+      id,
+      donor.id,
+    );
 
     console.log({ pictures: adoption.pictures });
     const pictures = adoption.pictures;
 
     pictures[Object.keys(pictures).length + 1] = file.filename;
 
-    const updatedAdoption = await this.adoptionService.update(id, {
+    const updatedAdoption = await this.adoptionService.updateById(id, {
       pictures: pictures,
     });
     return {
@@ -164,7 +155,7 @@ export class AdoptionController {
 
   @Get('/picture/:name')
   async getAdoptionPicture(@Param('name') name: string, @Res() res) {
-    return res.sendFile(
+    return await res.sendFile(
       join(process.cwd(), `${fileHelper.adoptionPicture.path}/${name}`),
     );
   }

@@ -7,9 +7,13 @@ export const mailHelper = {
     email: 'bruno.c0310@gmail.com',
     name: 'Projeto Amigo dos Animais',
   },
-  accountConfirmation: {
+  accountVerification: {
     subject: 'Confirme sua conta aqui!',
-    actionType: 'confirmar conta',
-    titleText: 'Confirme sua conta',
+    actionType: 'Validar conta',
+    titleText: 'Valide sua conta',
+  },
+  errorTexts: {
+    alreadyVerified: 'Account already verified!',
+    invalidToken: 'Verification token invalid!',
   },
 };

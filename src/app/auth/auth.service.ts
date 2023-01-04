@@ -44,14 +44,11 @@ export class AuthService {
 
   async registerUser(userRegisterDto: RegisterUserDto) {
     const newUser = await this.usersService.create(userRegisterDto);
-    try {
-      const user = await this.usersService.sendUserConfirmationMailById(
-        newUser.id,
-      );
-      return user;
-    } catch {
-      return newUser;
-    }
+
+    const user = await this.usersService.sendAccountVerificationMailById(
+      newUser.id,
+    );
+    return user;
   }
 
   private async getUserWithSensitiveDataByEmail(

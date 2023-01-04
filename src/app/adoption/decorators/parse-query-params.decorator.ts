@@ -32,9 +32,11 @@ export const ParseQueryParams = createParamDecorator(
         .toString()
         .toLowerCase()
         .split(',')[0];
+
       const orderingProp = orderingString.startsWith('-')
         ? orderingString.slice(1, orderingString.length)
         : orderingString;
+
       const orderingType = orderingString.startsWith('-') ? 'desc' : 'asc';
 
       if (!AdoptionOrderingOptions.includes(orderingProp))

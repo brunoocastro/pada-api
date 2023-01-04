@@ -10,6 +10,8 @@ export const ExclusiveForUserWithId = createParamDecorator(
     // todo -> implementar permissão para administradores
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
+    if (!request.user) throw new UnauthorizedException('You must be logged!');
+
     if (request.user.id !== request.params.id)
       throw new UnauthorizedException(
         'This data is exclusive for account owner.',

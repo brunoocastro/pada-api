@@ -1,4 +1,4 @@
-interface genericConfirmationTemplateProps {
+interface VerificationTemplateProps {
   projectName: string;
   projectUrl: string;
   actionType: string;
@@ -6,13 +6,13 @@ interface genericConfirmationTemplateProps {
   titleText: string;
 }
 
-export const getGenericConfirmationTemplate = ({
+export const getVerificationTemplate = ({
   projectName,
   projectUrl,
   actionType,
   confirmationUrl,
   titleText,
-}: genericConfirmationTemplateProps) => `
+}: VerificationTemplateProps) => `
 <!DOCTYPE html>
 <html>
 <head>

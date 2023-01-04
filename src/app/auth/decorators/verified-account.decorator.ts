@@ -6,7 +6,7 @@ import {
 import { UserResponseDto } from '../../users/dto/user-response.dto';
 import { AuthenticatedRequest } from '../interfaces/AuthenticatedRequest';
 
-export const HasConfirmedAccount = createParamDecorator(
+export const HasVerifiedAccount = createParamDecorator(
   (data: unknown, context: ExecutionContext): UserResponseDto => {
     // todo -> implementar permissão para administradores
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -15,7 +15,7 @@ export const HasConfirmedAccount = createParamDecorator(
 
     if (request.user.emailStatus !== 'VERIFIED')
       throw new UnauthorizedException(
-        'This data is exclusive for confirmed accounts.',
+        'This data is exclusive for verified accounts.',
       );
 
     return request.user;

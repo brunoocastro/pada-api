@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsMobilePhone, IsNotEmpty, IsOptional } from 'class-validator';
 import { UserEntity } from '../entities/user.entity';
 
 export class UserWithSensitiveDataDto implements Partial<UserEntity> {
@@ -30,6 +30,10 @@ export class UserWithSensitiveDataDto implements Partial<UserEntity> {
   @Expose()
   @IsNotEmpty()
   role: UserEntity['role'];
+
+  @Expose()
+  @IsMobilePhone(['pt-BR'])
+  phone: string;
 
   constructor(params: Partial<UserEntity>) {
     this.email = params?.email;

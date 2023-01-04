@@ -1,9 +1,9 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { mailHelper } from '../../helpers/mail.helper';
-import { SendConfirmAccountMailInterface } from './interface/send-confirm-account-mail.interface';
+import { SendAccountVerificationMail } from './interface/send-account-verification-mail.interface';
 import { SendMailInterface } from './interface/send-mail.interface';
-import { getGenericConfirmationTemplate } from './template/generic-confirmation.template';
+import { getVerificationTemplate } from './template/generic-confirmation.template';
 
 @Injectable()
 export class MailService {
@@ -24,18 +24,18 @@ export class MailService {
     return sendedMailResponse.accepted.includes(params.to.email);
   }
 
-  async sendConfirmAccountMail({
+  async sendAccountVerificationMail({
     to,
     confirmationUrl,
-  }: SendConfirmAccountMailInterface) {
+  }: SendAccountVerificationMail) {
     const sendedMail = await this.sendMail({
-      subject: mailHelper.accountConfirmation.subject,
-      html: getGenericConfirmationTemplate({
-        actionType: mailHelper.accountConfirmation.actionType,
+      subject: mailHelper.accountVerification.subject,
+      html: getVerificationTemplate({
+        actionType: mailHelper.accountVerification.actionType,
         confirmationUrl,
         projectName: this.projectName,
         projectUrl: this.projectUrl,
-        titleText: mailHelper.accountConfirmation.titleText,
+        titleText: mailHelper.accountVerification.titleText,
       }),
       to,
     });

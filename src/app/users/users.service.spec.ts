@@ -7,6 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
 import { cryptoHelper } from '../../helpers/crypto.helper';
+import { RegisterUserDto } from '../auth/dto/register.dto';
 import { MailService } from '../mail/mail.service';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
@@ -24,6 +25,7 @@ const userEntityData: UserEntity = {
   password: 'SenhaSecreta123@',
   picture: 'thispersondoesnotexists.com',
   role: 'USER',
+  phone: '55996279889',
 };
 
 const userEntity: UserEntity = plainToInstance(UserEntity, userEntityData, {
@@ -79,7 +81,7 @@ describe('UsersService', () => {
           provide: MailService,
           useValue: {
             projectUrl: 'teste.com',
-            sendConfirmAccountMail: jest.fn(),
+            sendAccountVerificationMail: jest.fn(),
           },
         },
       ],
@@ -176,16 +178,19 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
   });
 
   describe('create', () => {
-    const createPayload = {
+    const createPayload: RegisterUserDto = {
       email: userEntityWithSensitiveData.email,
       name: userEntityWithSensitiveData.name,
       password: userEntityWithSensitiveData.password,
       picture: userEntityWithSensitiveData.password,
+      phone: '55998765432',
     };
     it('should create a user and return user data', async () => {
       // Arrange
@@ -257,7 +262,9 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
   });
 
@@ -300,7 +307,9 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
   });
 
@@ -333,7 +342,9 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
   });
 
@@ -355,7 +366,7 @@ describe('UsersService', () => {
       });
 
       // Act
-      const result = await usersService.confirmAccountWithToken(
+      const result = await usersService.verifyAccountWithToken(
         userEntity.id,
         token,
       );
@@ -375,7 +386,7 @@ describe('UsersService', () => {
 
       // Assert
       expect(
-        usersService.confirmAccountWithToken(userEntity.id, 'Wrong token'),
+        usersService.verifyAccountWithToken(userEntity.id, 'Wrong token'),
       ).rejects.toThrowError();
     });
 
@@ -386,7 +397,7 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.confirmAccountWithToken).rejects.toThrowError();
+      expect(usersService.verifyAccountWithToken).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findById', async () => {
@@ -396,7 +407,9 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
   });
 
@@ -408,7 +421,7 @@ describe('UsersService', () => {
         email: userEntity.email,
         createdAt: userEntity.createdAt,
       });
-      const url = `${mailService.projectUrl}/user/${userEntity.id}/mail/confirm/${token}`;
+      const url = `${mailService.projectUrl}/user/${userEntity.id}/verify/${token}`;
       const updatedUser: UserResponseDto = {
         ...userEntity,
         emailStatus: 'PENDING',
@@ -416,14 +429,14 @@ describe('UsersService', () => {
       jest.spyOn(usersService, 'update').mockResolvedValueOnce(updatedUser);
 
       // Act
-      const result = await usersService.sendUserConfirmationMailById(
+      const result = await usersService.sendAccountVerificationMailById(
         userEntity.id,
       );
 
       // Assert
       expect(result).toEqual(updatedUser);
-      expect(mailService.sendConfirmAccountMail).toBeCalledTimes(1);
-      expect(mailService.sendConfirmAccountMail).toBeCalledWith({
+      expect(mailService.sendAccountVerificationMail).toBeCalledTimes(1);
+      expect(mailService.sendAccountVerificationMail).toBeCalledWith({
         confirmationUrl: url,
         to: { email: userEntity.email, name: userEntity.name },
       });
@@ -436,7 +449,9 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findById', async () => {
@@ -446,17 +461,21 @@ describe('UsersService', () => {
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
 
     it('should throw an exception when mail service fail', async () => {
       // Arrange
       jest
-        .spyOn(mailService, 'sendConfirmAccountMail')
+        .spyOn(mailService, 'sendAccountVerificationMail')
         .mockRejectedValueOnce(new Error());
 
       // Assert
-      expect(usersService.sendUserConfirmationMailById).rejects.toThrowError();
+      expect(
+        usersService.sendAccountVerificationMailById,
+      ).rejects.toThrowError();
     });
   });
 });

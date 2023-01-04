@@ -58,7 +58,7 @@ describe('AuthService', () => {
           provide: UsersService,
           useValue: {
             create: jest.fn().mockResolvedValue(userData),
-            sendUserConfirmationMailById: jest
+            sendAccountVerificationMailById: jest
               .fn()
               .mockResolvedValue({ ...userData, emailStatus: 'PENDING' }),
           },
@@ -132,6 +132,7 @@ describe('AuthService', () => {
       name: userData.name,
       picture: userData.picture,
       password: userWithSensitiveData.password,
+      phone: '55998765432',
     };
 
     it('should register user, send confirmation mail and return user data', async () => {
@@ -143,10 +144,10 @@ describe('AuthService', () => {
       expect(response).not.toHaveProperty('password');
       expect(usersService.create).toBeCalledWith(registerPayload);
       expect(usersService.create).toBeCalledTimes(1);
-      expect(usersService.sendUserConfirmationMailById).toBeCalledWith(
+      expect(usersService.sendAccountVerificationMailById).toBeCalledWith(
         response.id,
       );
-      expect(usersService.sendUserConfirmationMailById).toBeCalledTimes(1);
+      expect(usersService.sendAccountVerificationMailById).toBeCalledTimes(1);
       expect(response.emailStatus).toEqual('PENDING');
     });
 
