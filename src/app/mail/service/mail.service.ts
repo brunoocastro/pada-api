@@ -1,9 +1,9 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { mailHelper } from '../../helpers/mail.helper';
-import { SendAccountVerificationMail } from './interface/send-account-verification-mail.interface';
-import { SendMailInterface } from './interface/send-mail.interface';
-import { getVerificationTemplate } from './template/generic-confirmation.template';
+import { mailHelper } from '../../../helpers/mail.helper';
+import { SendAccountVerificationMail } from './../interface/send-account-verification-mail.interface';
+import { SendMailInterface } from './../interface/send-mail.interface';
+import { getVerificationTemplate } from './../template/generic-confirmation.template';
 
 @Injectable()
 export class MailService {

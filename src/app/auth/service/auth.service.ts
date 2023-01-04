@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common/exceptions';
 import { JwtService } from '@nestjs/jwt';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { cryptoHelper } from '../../helpers/crypto.helper';
-import { UserResponseDto } from '../users/dto/user-response.dto';
-import { UserWithSensitiveDataDto } from '../users/dto/user-with-sensitive-data.dto';
-import { UsersRepository } from '../users/users.repository';
-import { UsersService } from '../users/users.service';
-import { RegisterUserDto } from './dto/register.dto';
+import { cryptoHelper } from '../../../helpers/crypto.helper';
+import { UserResponseDto } from '../../users/dto/user-response.dto';
+import { UserWithSensitiveDataDto } from '../../users/dto/user-with-sensitive-data.dto';
+import { UsersRepository } from '../../users/repository/users.repository';
+import { UsersService } from '../../users/service/users.service';
+import { RegisterUserDto } from './../dto/register.dto';
 
 @Injectable()
 export class AuthService {

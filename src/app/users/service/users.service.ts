@@ -6,16 +6,16 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
-import { RegisterUserDto } from '../auth/dto/register.dto';
-import { MailService } from '../mail/mail.service';
-import { UserResponseDto } from './dto/user-response.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserEntity } from './entities/user.entity';
-import { UsersRepository } from './users.repository';
-import { cryptoHelper } from '../../helpers/crypto.helper';
-import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
-import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
-import { mailHelper } from '../../helpers/mail.helper';
+import { cryptoHelper } from '../../../helpers/crypto.helper';
+import { mailHelper } from '../../../helpers/mail.helper';
+import { RegisterUserDto } from '../../auth/dto/register.dto';
+import { MailService } from '../../mail/service/mail.service';
+import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { UserWithSensitiveDataDto } from '../dto/user-with-sensitive-data.dto';
+import { UserEntity } from '../entities/user.entity';
+import { UsersRepository } from '../repository/users.repository';
 
 @Injectable()
 export class UsersService {

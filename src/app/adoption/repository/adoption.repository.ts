@@ -1,8 +1,8 @@
-import { CreateAdoptionDto } from './dto/create-adoption.dto';
-import { UpdateAdoptionDto } from './dto/update-adoption.dto';
-import { AdoptionEntity } from './entities/adoption.entity';
-import { DefaultAdoptionsResponse } from './interfaces/DefaultAdoptionsResponse.interface';
-import { AdoptionQueryParams } from './interfaces/DefaultQueryParams.interface';
+import { CreateAdoptionDto } from '../dto/create-adoption.dto';
+import { UpdateAdoptionDto } from '../dto/update-adoption.dto';
+import { AdoptionEntity } from '../entities/adoption.entity';
+import { DefaultAdoptionsResponse } from '../interfaces/DefaultAdoptionsResponse.interface';
+import { AdoptionQueryParams } from '../interfaces/DefaultQueryParams.interface';
 
 export abstract class AdoptionRepository {
   abstract findById(

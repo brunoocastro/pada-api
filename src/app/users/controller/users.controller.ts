@@ -15,16 +15,16 @@ import {
   MaxFileSizeValidator,
   FileTypeValidator,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { IsPublic } from '../auth/decorators/is-public.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt.guards';
-import { ExclusiveForUserWithId } from '../auth/decorators/user-exclusive.decorator';
-import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { IsPublic } from '../../auth/decorators/is-public.decorator';
+import { JwtAuthGuard } from '../../auth/guards/jwt.guards';
+import { ExclusiveForUserWithId } from '../../auth/decorators/user-exclusive.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join, parse } from 'path';
-import { filesHelper } from '../../helpers/files.helper';
+import { filesHelper } from '../../../helpers/files.helper';
+import { UsersService } from '../service/users.service';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
 
 const fileHelper = new filesHelper();
 const userPictureStorage = {

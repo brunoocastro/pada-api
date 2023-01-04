@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { plainToClass } from 'class-transformer';
 import { Strategy } from 'passport-local';
 import { MessagesHelper } from '../../../helpers/messages.helper';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../service/auth.service';
 import { UserLoginDto } from '../dto/login.dto';
 
 @Injectable()

@@ -1,6 +1,6 @@
-import { RegisterUserDto } from '../auth/dto/register.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserEntity } from './entities/user.entity';
+import { RegisterUserDto } from '../../auth/dto/register.dto';
+import { UpdateUserDto } from '../dto/update-user.dto';
+import { UserEntity } from '../entities/user.entity';
 
 export abstract class UsersRepository {
   abstract findById(id: UserEntity['id']): Promise<UserEntity>;

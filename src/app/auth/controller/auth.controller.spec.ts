@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
-import { UserResponseDto } from '../users/dto/user-response.dto';
+import { UserResponseDto } from '../../users/dto/user-response.dto';
 import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { RegisterUserDto } from './dto/register.dto';
+import { AuthService } from '../service/auth.service';
+import { RegisterUserDto } from '../dto/register.dto';
 
 const newUserPayloadDto: RegisterUserDto = {
   email: 'tonelive@yopmail.com',

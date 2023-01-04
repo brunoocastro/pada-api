@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
-import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
-import { UserResponseDto } from './dto/user-response.dto';
+import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { UsersService } from '../service/users.service';
 import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
 
 const loggedUser: UserResponseDto = {
   emailStatus: 'UNVERIFIED',

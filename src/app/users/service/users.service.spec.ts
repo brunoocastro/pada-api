@@ -6,13 +6,13 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
-import { cryptoHelper } from '../../helpers/crypto.helper';
-import { RegisterUserDto } from '../auth/dto/register.dto';
-import { MailService } from '../mail/mail.service';
-import { UserResponseDto } from './dto/user-response.dto';
-import { UserWithSensitiveDataDto } from './dto/user-with-sensitive-data.dto';
-import { UserEntity } from './entities/user.entity';
-import { UsersRepository } from './users.repository';
+import { cryptoHelper } from '../../../helpers/crypto.helper';
+import { RegisterUserDto } from '../../auth/dto/register.dto';
+import { MailService } from '../../mail/service/mail.service';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { UserWithSensitiveDataDto } from '../dto/user-with-sensitive-data.dto';
+import { UserEntity } from '../entities/user.entity';
+import { UsersRepository } from '../repository/users.repository';
 import { UsersService } from './users.service';
 
 const userEntityData: UserEntity = {

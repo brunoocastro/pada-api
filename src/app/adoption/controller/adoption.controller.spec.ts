@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { randomUUID } from 'crypto';
-import { UserEntity } from '../users/entities/user.entity';
-import { UsersService } from '../users/users.service';
+import { randomUUID } from 'node:crypto';
+import { UserEntity } from '../../users/entities/user.entity';
 import { AdoptionController } from './adoption.controller';
-import { AdoptionService } from './adoption.service';
-import { CreateAdoptionDto } from './dto/create-adoption.dto';
-import { AdoptionEntity } from './entities/adoption.entity';
+import { AdoptionService } from '../service/adoption.service';
+import { CreateAdoptionDto } from '../dto/create-adoption.dto';
+import { AdoptionEntity } from '../entities/adoption.entity';
+import { UsersService } from '../../users/service/users.service';
 
 const donor: UserEntity = new UserEntity({
   email: 'pada@yopmail.com',
@@ -29,6 +29,7 @@ const adoption: AdoptionEntity = new AdoptionEntity(createAdoptionData);
 describe('AdoptionController', () => {
   let adoptionController: AdoptionController;
   let adoptionService: AdoptionService;
+  let usersService: UsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -57,11 +58,13 @@ describe('AdoptionController', () => {
 
     adoptionController = module.get<AdoptionController>(AdoptionController);
     adoptionService = module.get<AdoptionService>(AdoptionService);
+    usersService = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
     expect(adoptionController).toBeDefined();
     expect(adoptionService).toBeDefined();
+    expect(usersService).toBeDefined();
   });
 
   describe('createAdoption', () => {

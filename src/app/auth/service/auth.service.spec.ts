@@ -6,13 +6,13 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
-import { cryptoHelper } from '../../helpers/crypto.helper';
-import { UserResponseDto } from '../users/dto/user-response.dto';
-import { UserWithSensitiveDataDto } from '../users/dto/user-with-sensitive-data.dto';
-import { UsersRepository } from '../users/users.repository';
-import { UsersService } from '../users/users.service';
+import { cryptoHelper } from '../../../helpers/crypto.helper';
+import { UserResponseDto } from '../../users/dto/user-response.dto';
+import { UserWithSensitiveDataDto } from '../../users/dto/user-with-sensitive-data.dto';
+import { UsersRepository } from '../../users/repository/users.repository';
 import { AuthService } from './auth.service';
-import { RegisterUserDto } from './dto/register.dto';
+import { RegisterUserDto } from '../dto/register.dto';
+import { UsersService } from '../../users/service/users.service';
 
 const userEmail = 'tonelive@yopmail.com';
 

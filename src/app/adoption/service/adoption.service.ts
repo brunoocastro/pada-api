@@ -3,11 +3,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AdoptionRepository } from './adoption.repository';
-import { CreateAdoptionDto } from './dto/create-adoption.dto';
-import { UpdateAdoptionDto } from './dto/update-adoption.dto';
-import { AdoptionEntity } from './entities/adoption.entity';
-import { AdoptionQueryParams } from './interfaces/DefaultQueryParams.interface';
+import { AdoptionRepository } from './../repository/adoption.repository';
+import { CreateAdoptionDto } from './../dto/create-adoption.dto';
+import { UpdateAdoptionDto } from './../dto/update-adoption.dto';
+import { AdoptionEntity } from './../entities/adoption.entity';
+import { AdoptionQueryParams } from './../interfaces/DefaultQueryParams.interface';
 
 @Injectable()
 export class AdoptionService {

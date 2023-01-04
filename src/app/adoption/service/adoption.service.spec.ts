@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AdoptionRepository } from './adoption.repository';
+import { AdoptionRepository } from '../repository/adoption.repository';
 import { AdoptionService } from './adoption.service';
 
 describe('AdoptionService', () => {

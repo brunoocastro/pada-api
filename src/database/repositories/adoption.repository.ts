@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AdoptionRepository } from '../../app/adoption/adoption.repository';
+import { AdoptionRepository } from '../../app/adoption/repository/adoption.repository';
 import { AdoptionEntity } from '../../app/adoption/entities/adoption.entity';
 import { DefaultAdoptionsResponse } from '../../app/adoption/interfaces/DefaultAdoptionsResponse.interface';
 import { AdoptionQueryParams } from '../../app/adoption/interfaces/DefaultQueryParams.interface';

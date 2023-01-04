@@ -1,6 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SendAccountVerificationMail } from './interface/send-account-verification-mail.interface';
+import { SendAccountVerificationMail } from '../interface/send-account-verification-mail.interface';
 import { MailService } from './mail.service';
 
 describe('MailService', () => {
