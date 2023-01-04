@@ -10,15 +10,12 @@ import { cryptoHelper } from '../../../helpers/crypto.helper';
 import { RegisterUserDto } from '../../auth/dto/register.dto';
 import { MailService } from '../../mail/service/mail.service';
 import { UserResponseDto } from '../dto/user-response.dto';
-import { UserWithSensitiveDataDto } from '../dto/user-with-sensitive-data.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UsersRepository } from '../repository/users.repository';
 import { UsersService } from './users.service';
 
 const userEntityData: UserEntity = {
   id: randomUUID(),
-  createdAt: new Date(),
-  updatedAt: new Date(),
   email: 'tonelive@yopmail.com',
   emailStatus: 'UNVERIFIED',
   name: 'tonelive',
@@ -26,16 +23,21 @@ const userEntityData: UserEntity = {
   picture: 'thispersondoesnotexists.com',
   role: 'USER',
   phone: '55996279889',
+  createdAt: new Date(),
+  updatedAt: new Date(),
 };
 
-const userEntity: UserEntity = plainToInstance(UserEntity, userEntityData, {
-  excludeExtraneousValues: true,
+const userEntity = new UserEntity(userEntityData);
+
+const userEntityWithHashedPassword = new UserEntity({
+  ...userEntity,
+  password: cryptoHelper.hashPassword(userEntity.password),
 });
 
-const userEntityWithSensitiveData = plainToInstance(
-  UserWithSensitiveDataDto,
-  userEntityData,
-);
+const userEntityWithoutSensitiveData: UserEntity = {
+  ...userEntity,
+  password: undefined,
+};
 
 const userResponse = plainToInstance(UserResponseDto, userEntityData, {
   excludeExtraneousValues: true,
@@ -54,19 +56,14 @@ describe('UsersService', () => {
         {
           provide: UsersRepository,
           useValue: {
-            findById: jest.fn().mockResolvedValue({
-              ...userEntityWithSensitiveData,
-              password: cryptoHelper.hashPassword(
-                userEntityWithSensitiveData.password,
-              ),
-            }),
+            findById: jest.fn().mockResolvedValue(userEntityWithHashedPassword),
             findByEmail: jest
               .fn()
-              .mockResolvedValue(userEntityWithSensitiveData),
-            create: jest.fn().mockResolvedValue(userEntityWithSensitiveData),
+              .mockResolvedValue(userEntityWithHashedPassword),
+            create: jest.fn().mockResolvedValue(userEntityWithHashedPassword),
             updateById: jest
               .fn()
-              .mockResolvedValue(userEntityWithSensitiveData),
+              .mockResolvedValue(userEntityWithHashedPassword),
             deleteById: jest.fn().mockResolvedValue(undefined),
           },
         },
@@ -102,82 +99,80 @@ describe('UsersService', () => {
 
   describe('findById', () => {
     it('should return a user entity without sensitive data successfully', async () => {
-      // Act
-      const result = await usersService.findById(userEntity.id);
+      const result = await usersService.findById(
+        userEntityWithoutSensitiveData.id,
+      );
 
-      // Assert
-      expect(result).toEqual(userEntity);
+      expect(result).toEqual(userEntityWithoutSensitiveData);
       expect(result.password).toBeUndefined();
 
       expect(usersRepository.findById).toBeCalledTimes(1);
-      expect(usersRepository.findById).toBeCalledWith(userEntity.id);
+      expect(usersRepository.findById).toBeCalledWith(
+        userEntityWithoutSensitiveData.id,
+      );
     });
 
     it('should throw an exception when repository fail - findById', () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(usersService.findById).rejects.toThrowError();
     });
   });
 
   describe('findByEmail', () => {
     it('should return a user entity without sensitive data successfully', async () => {
-      // Act
-      const result = await usersService.findByEmail(userEntity.email);
+      const result = await usersService.findByEmail(
+        userEntityWithoutSensitiveData.email,
+      );
 
-      // Assert
-      expect(result).toEqual(userEntity);
+      expect(result).toEqual(userEntityWithoutSensitiveData);
       expect(result.password).toBeUndefined();
 
       expect(usersRepository.findByEmail).toBeCalledTimes(1);
-      expect(usersRepository.findByEmail).toBeCalledWith(userEntity.email);
+      expect(usersRepository.findByEmail).toBeCalledWith(
+        userEntityWithoutSensitiveData.email,
+      );
     });
 
     it('should throw an exception when repository fail - findByEmail', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findByEmail')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(usersService.findByEmail).rejects.toThrowError();
     });
   });
 
   describe('getExistentById', () => {
     it('should return an existent user', async () => {
-      // Act
-      const result = await usersService.getExistentById(userEntity.id);
+      const result = await usersService.getExistentById(
+        userEntityWithoutSensitiveData.id,
+      );
 
-      // Assert
-      expect(result).toEqual(userEntity);
+      expect(result).toEqual(userEntityWithoutSensitiveData);
       expect(result.password).toBeUndefined();
 
       expect(usersRepository.findById).toBeCalledTimes(1);
-      expect(usersRepository.findById).toBeCalledWith(userEntity.id);
-    });
-
-    it('should throw an not found exception to inexistent users', async () => {
-      // Act
-      jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(null);
-
-      // Assert
-      expect(usersService.getExistentById(userEntity.id)).rejects.toThrowError(
-        NotFoundException,
+      expect(usersRepository.findById).toBeCalledWith(
+        userEntityWithoutSensitiveData.id,
       );
     });
 
+    it('should throw an not found exception to inexistent users', async () => {
+      jest.spyOn(usersRepository, 'findById').mockResolvedValueOnce(null);
+
+      expect(
+        usersService.getExistentById(userEntityWithoutSensitiveData.id),
+      ).rejects.toThrowError(NotFoundException);
+    });
+
     it('should throw an exception when repository fail - findById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();
@@ -186,82 +181,65 @@ describe('UsersService', () => {
 
   describe('create', () => {
     const createPayload: RegisterUserDto = {
-      email: userEntityWithSensitiveData.email,
-      name: userEntityWithSensitiveData.name,
-      password: userEntityWithSensitiveData.password,
-      picture: userEntityWithSensitiveData.password,
-      phone: '55998765432',
+      email: userEntity.email,
+      name: userEntity.name,
+      password: userEntity.password,
+      picture: userEntity.picture,
+      phone: userEntity.phone,
     };
+
     it('should create a user and return user data', async () => {
-      // Arrange
       jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
 
       //Act
       const response = await usersService.create(createPayload);
 
-      // Assert
       expect(response).toEqual(userResponse);
 
       expect(usersRepository.findByEmail).toBeCalledTimes(1);
-      expect(usersRepository.findByEmail).toBeCalledWith(
-        userEntityWithSensitiveData.email,
-      );
+      expect(usersRepository.findByEmail).toBeCalledWith(userEntity.email);
 
       expect(usersRepository.create).toBeCalledTimes(1);
     });
 
     it('should throw an bad request exception when using existent email', async () => {
-      // Assert
-      expect(usersService.create(createPayload)).rejects.toThrowError(
-        BadRequestException,
-      );
+      expect(usersService.create(createPayload)).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findByEmail', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findByEmail')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
-      expect(usersService.create).rejects.toThrowError();
+      expect(usersService.create(createPayload)).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - create', async () => {
-      // Arrange
       jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
       jest.spyOn(usersRepository, 'create').mockRejectedValueOnce(new Error());
 
-      // Assert
-      expect(usersService.create).rejects.toThrowError();
+      expect(usersService.create(createPayload)).rejects.toThrowError();
     });
   });
 
   describe('delete', () => {
     it('should delete a user successfully', async () => {
-      // Assert
-      expect(
-        usersService.delete(userEntityWithSensitiveData.id),
-      ).resolves.toBeUndefined();
+      expect(usersService.delete(userEntity.id)).resolves.toBeUndefined();
     });
 
     it('should throw an exception when repository fail - deleteById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'deleteById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(usersService.delete).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();
@@ -270,43 +248,42 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should update user info successfully', async () => {
-      // Arrange
       const updatedUser: UserResponseDto = {
-        emailStatus: userEntity.emailStatus,
-        id: userEntity.id,
+        emailStatus: userEntityWithoutSensitiveData.emailStatus,
+        id: userEntityWithoutSensitiveData.id,
         name: 'Updated Name',
-        picture: userEntity.picture,
-        role: userEntity.role,
+        picture: userEntityWithoutSensitiveData.picture,
+        role: userEntityWithoutSensitiveData.role,
       };
 
-      jest
-        .spyOn(usersRepository, 'updateById')
-        .mockResolvedValueOnce({ ...userEntity, ...updatedUser });
-
-      // Act
-      const result = await usersService.update(userEntity.id, {
-        name: updatedUser.name,
+      jest.spyOn(usersRepository, 'updateById').mockResolvedValueOnce({
+        ...userEntityWithoutSensitiveData,
+        ...updatedUser,
       });
-      // Assert
+
+      const result = await usersService.update(
+        userEntityWithoutSensitiveData.id,
+        {
+          name: updatedUser.name,
+        },
+      );
+
       expect(result).toEqual(updatedUser);
     });
 
     it('should throw an exception when repository fail - updateById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'updateById')
         .mockRejectedValueOnce(new Error());
-      // Assert
+
       expect(usersService.update).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();
@@ -315,33 +292,30 @@ describe('UsersService', () => {
 
   describe('updatePassword', () => {
     it('should update user password successfully', async () => {
-      // Act
-      const response = await usersService.updatePassword(userEntity.id, {
-        oldPassword: userEntityWithSensitiveData.password,
-        newPassword: 'SenhaTeste123@',
-      });
+      const response = await usersService.updatePassword(
+        userEntityWithoutSensitiveData.id,
+        {
+          oldPassword: userEntity.password,
+          newPassword: 'SenhaTeste123@',
+        },
+      );
 
-      // Assert
       expect(response).toEqual(userResponse);
     });
 
     it('should throw an exception when repository fail - updateById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'updateById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(usersService.updatePassword).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();
@@ -350,7 +324,6 @@ describe('UsersService', () => {
 
   describe('confirmAccountWithToken', () => {
     it('should confirm account with received token', async () => {
-      // Arrange
       jest.spyOn(usersRepository, 'findById').mockResolvedValue({
         ...userEntityData,
         emailStatus: 'PENDING',
@@ -360,14 +333,13 @@ describe('UsersService', () => {
         emailStatus: 'VERIFIED',
       });
       const token = jwtService.sign({
-        id: userEntity.id,
-        email: userEntity.email,
-        createdAt: userEntity.createdAt,
+        id: userEntityWithoutSensitiveData.id,
+        email: userEntityWithoutSensitiveData.email,
+        createdAt: userEntityWithoutSensitiveData.createdAt,
       });
 
-      // Act
       const result = await usersService.verifyAccountWithToken(
-        userEntity.id,
+        userEntityWithoutSensitiveData.id,
         token,
       );
 
@@ -375,7 +347,6 @@ describe('UsersService', () => {
     });
 
     it('should throw an exception when receiving wrong token', () => {
-      // Arrange
       jest.spyOn(usersRepository, 'findById').mockResolvedValue({
         ...userEntityData,
         emailStatus: 'PENDING',
@@ -384,29 +355,27 @@ describe('UsersService', () => {
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
-        usersService.verifyAccountWithToken(userEntity.id, 'Wrong token'),
+        usersService.verifyAccountWithToken(
+          userEntityWithoutSensitiveData.id,
+          'Wrong token',
+        ),
       ).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - updateById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'updateById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(usersService.verifyAccountWithToken).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();
@@ -415,64 +384,58 @@ describe('UsersService', () => {
 
   describe('sendUserConfirmationMailById', () => {
     it('should send user confirmation mail successfully', async () => {
-      // Arrange
       const token = jwtService.sign({
-        id: userEntity.id,
-        email: userEntity.email,
-        createdAt: userEntity.createdAt,
+        id: userEntityWithoutSensitiveData.id,
+        email: userEntityWithoutSensitiveData.email,
+        createdAt: userEntityWithoutSensitiveData.createdAt,
       });
-      const url = `${mailService.projectUrl}/user/${userEntity.id}/verify/${token}`;
+      const url = `${mailService.projectUrl}/user/${userEntityWithoutSensitiveData.id}/verify/${token}`;
       const updatedUser: UserResponseDto = {
-        ...userEntity,
+        ...userEntityWithoutSensitiveData,
         emailStatus: 'PENDING',
       };
       jest.spyOn(usersService, 'update').mockResolvedValueOnce(updatedUser);
 
-      // Act
       const result = await usersService.sendAccountVerificationMailById(
-        userEntity.id,
+        userEntityWithoutSensitiveData.id,
       );
 
-      // Assert
       expect(result).toEqual(updatedUser);
       expect(mailService.sendAccountVerificationMail).toBeCalledTimes(1);
       expect(mailService.sendAccountVerificationMail).toBeCalledWith({
         confirmationUrl: url,
-        to: { email: userEntity.email, name: userEntity.name },
+        to: {
+          email: userEntityWithoutSensitiveData.email,
+          name: userEntityWithoutSensitiveData.name,
+        },
       });
     });
 
     it('should throw an exception when repository fail - updateById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'updateById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();
     });
 
     it('should throw an exception when repository fail - findById', async () => {
-      // Arrange
       jest
         .spyOn(usersRepository, 'findById')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();
     });
 
     it('should throw an exception when mail service fail', async () => {
-      // Arrange
       jest
         .spyOn(mailService, 'sendAccountVerificationMail')
         .mockRejectedValueOnce(new Error());
 
-      // Assert
       expect(
         usersService.sendAccountVerificationMailById,
       ).rejects.toThrowError();

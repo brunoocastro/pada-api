@@ -1,64 +1,50 @@
 import { EmailStatus, Role, User } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import {
-  IsDate,
-  IsEmail,
-  IsMobilePhone,
-  IsNotEmpty,
-  IsOptional,
-} from 'class-validator';
+import { randomUUID } from 'node:crypto';
 
-export class UserEntity implements User {
+export class UserEntity implements Partial<User> {
   @Expose()
-  @IsNotEmpty()
   id: string;
 
   @Expose()
-  @IsDate()
-  createdAt: Date;
+  createdAt?: Date;
 
   @Expose()
-  @IsDate()
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @Expose()
-  @IsEmail()
   email: string;
 
   @Expose()
-  @IsNotEmpty()
   emailStatus: EmailStatus;
 
   @Expose()
-  @IsNotEmpty()
   role: Role;
 
   @Expose()
-  @IsNotEmpty()
   name: string;
 
   @Expose()
-  @IsOptional()
-  picture: string;
+  picture?: string;
 
   @Expose()
-  @IsMobilePhone(['pt-BR'])
-  phone: string;
+  phone?: string;
 
   @Exclude()
-  @IsNotEmpty()
-  password: string;
+  password?: string;
 
-  constructor(user: Partial<UserEntity>) {
-    this.id = user?.id;
+  constructor(user: UserEntity) {
     this.createdAt = user?.createdAt ?? new Date();
     this.updatedAt = user?.updatedAt ?? new Date();
-    this.email = user?.email;
-    this.name = user?.name;
     this.picture = user?.picture;
     this.phone = user?.phone;
-    this.emailStatus = user?.emailStatus ?? 'UNVERIFIED';
-    this.role = user?.role ?? 'USER';
+
+    this.id = user?.id ?? randomUUID();
+    this.email = user?.email;
+    this.name = user?.name;
+    this.emailStatus = user?.emailStatus;
+    this.role = user?.role;
+
     this.password = user?.password;
   }
 }

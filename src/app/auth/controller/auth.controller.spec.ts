@@ -49,7 +49,7 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('should register a user and return basic user data', async () => {
-      // Act
+      
       const result = await authController.register(newUserPayloadDto);
 
       //Assert

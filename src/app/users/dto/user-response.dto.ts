@@ -9,7 +9,7 @@ export class UserResponseDto implements Partial<UserEntity> {
 
   @Expose()
   @IsOptional()
-  picture: UserEntity['picture'];
+  picture?: UserEntity['picture'];
 
   @Expose()
   @IsNotEmpty()

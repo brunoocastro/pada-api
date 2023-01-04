@@ -4,6 +4,7 @@ import { AuthService } from './../service/auth.service';
 import { LoggedUser } from './../decorators/logged-user.decorator';
 import { RegisterUserDto } from './../dto/register.dto';
 import { LocalAuthGuard } from './../guards/local.guards';
+import { UserResponseDto } from '../../users/dto/user-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -11,7 +12,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@LoggedUser() user: UserEntity) {
+  async login(@LoggedUser() user: UserResponseDto) {
     return { message: 'Logged with success!', user };
   }
 

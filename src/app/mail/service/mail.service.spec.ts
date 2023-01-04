@@ -47,7 +47,6 @@ describe('MailService', () => {
       //Act
       const result = await mailService.sendAccountVerificationMail(mailProps);
 
-      // Assert
       expect(result).toBeTruthy();
       expect(smtpService.sendMail).toBeCalledTimes(1);
     });

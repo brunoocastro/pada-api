@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { cryptoHelper } from '../../../helpers/crypto.helper';
 import { UserResponseDto } from '../../users/dto/user-response.dto';
-import { UserWithSensitiveDataDto } from '../../users/dto/user-with-sensitive-data.dto';
+import { UserEntity } from '../../users/entities/user.entity';
 import { UsersRepository } from '../../users/repository/users.repository';
 import { UsersService } from '../../users/service/users.service';
 import { RegisterUserDto } from './../dto/register.dto';
@@ -53,11 +53,11 @@ export class AuthService {
 
   private async getUserWithSensitiveDataByEmail(
     email: string,
-  ): Promise<UserWithSensitiveDataDto> {
+  ): Promise<UserEntity> {
     const possibleUser = await this.usersRepository.findByEmail(email);
 
-    return plainToInstance(UserWithSensitiveDataDto, possibleUser ?? null, {
-      excludeExtraneousValues: true,
-    });
+    if (!possibleUser) return null;
+
+    return new UserEntity(possibleUser);
   }
 }

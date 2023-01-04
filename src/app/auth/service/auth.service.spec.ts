@@ -8,15 +8,15 @@ import { plainToInstance } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
 import { cryptoHelper } from '../../../helpers/crypto.helper';
 import { UserResponseDto } from '../../users/dto/user-response.dto';
-import { UserWithSensitiveDataDto } from '../../users/dto/user-with-sensitive-data.dto';
 import { UsersRepository } from '../../users/repository/users.repository';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from '../dto/register.dto';
 import { UsersService } from '../../users/service/users.service';
+import { UserEntity } from '../../users/entities/user.entity';
 
 const userEmail = 'tonelive@yopmail.com';
 
-const userRawData = {
+const userRawData: UserEntity = {
   emailStatus: 'UNVERIFIED',
   id: randomUUID(),
   name: 'Tonelive',
@@ -28,11 +28,7 @@ const userRawData = {
   email: 'tonelive@yopmail.com',
 };
 
-const userWithSensitiveData: UserWithSensitiveDataDto = plainToInstance(
-  UserWithSensitiveDataDto,
-  userRawData,
-  { excludeExtraneousValues: true },
-);
+const userWithSensitiveData = new UserEntity(userRawData);
 
 const userData: UserResponseDto = plainToInstance(
   UserResponseDto,
@@ -92,30 +88,25 @@ describe('AuthService', () => {
 
   describe('validateUserLogin', () => {
     it('should validate user login and return user data with token', async () => {
-      // Act
       const { token, ...resultWithoutToken } =
         await authService.validateUserLogin(
           userEmail,
           userWithSensitiveData.password,
         );
 
-      // Assert
       expect(resultWithoutToken).toEqual(userData);
       expect(token).toEqual(jwtService.sign(resultWithoutToken));
     });
 
     it('should return unauthorized exception by sending wrong password', async () => {
-      // Assert
       expect(() =>
         authService.validateUserLogin(userEmail, 'WrongPassword'),
       ).rejects.toThrowError(UnauthorizedException);
     });
 
     it('should return unauthorized exception by sending wrong email', async () => {
-      // Arrange
       jest.spyOn(usersRepository, 'findByEmail').mockResolvedValueOnce(null);
 
-      // Assert
       expect(() =>
         authService.validateUserLogin(
           'WrongEmail',
@@ -126,7 +117,6 @@ describe('AuthService', () => {
   });
 
   describe('registerUser', () => {
-    // Arrange
     const registerPayload: RegisterUserDto = {
       email: userEmail,
       name: userData.name,
@@ -136,10 +126,8 @@ describe('AuthService', () => {
     };
 
     it('should register user, send confirmation mail and return user data', async () => {
-      // Act
       const response = await authService.registerUser(registerPayload);
 
-      // Assert
       expect(response).toEqual({ ...userData, emailStatus: 'PENDING' });
       expect(response).not.toHaveProperty('password');
       expect(usersService.create).toBeCalledWith(registerPayload);
@@ -152,15 +140,14 @@ describe('AuthService', () => {
     });
 
     it('should throw bad request exception by service error', async () => {
-      // Arrange
       jest
         .spyOn(usersService, 'create')
         .mockRejectedValueOnce(new BadRequestException());
 
       //Assert
-      expect(
-        async () => await authService.registerUser(registerPayload),
-      ).rejects.toThrowError(BadRequestException);
+      expect(authService.registerUser(registerPayload)).rejects.toThrowError(
+        new BadRequestException(),
+      );
     });
   });
 });

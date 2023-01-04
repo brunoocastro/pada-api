@@ -1,6 +1,6 @@
 import { Adoption, AdoptionStates, Genders, Prisma } from '@prisma/client';
 import { Expose } from 'class-transformer';
-import { IsDate, IsJSON, IsNotEmpty, IsOptional } from 'class-validator';
+import { randomUUID } from 'node:crypto';
 
 export enum AdoptionStatesEnum {
   MALE,
@@ -8,57 +8,47 @@ export enum AdoptionStatesEnum {
   UNKNOWN,
 }
 
-export class AdoptionEntity implements Adoption {
+export class AdoptionEntity implements Partial<Adoption> {
   @Expose()
-  @IsNotEmpty()
-  id: string;
+  id?: string;
 
   @Expose()
-  @IsDate()
-  @IsNotEmpty()
-  createdAt: Date;
+  createdAt?: Date;
 
   @Expose()
-  @IsDate()
-  @IsNotEmpty()
-  updatedAt: Date;
+  updatedAt?: Date;
 
   @Expose()
-  @IsNotEmpty()
   species: string;
 
   @Expose()
-  @IsOptional()
-  breed: string;
+  breed?: string;
 
   @Expose()
-  @IsOptional()
   name: string;
 
   @Expose()
-  @IsJSON()
-  pictures: Prisma.JsonValue;
+  pictures?: Prisma.JsonValue;
 
   @Expose()
-  @IsNotEmpty()
   gender: Genders;
 
   @Expose()
-  @IsNotEmpty()
-  adoptionState: AdoptionStates;
+  adoptionState?: AdoptionStates;
 
   @Expose()
-  @IsNotEmpty()
   donorId: string;
 
-  constructor(params: Partial<AdoptionEntity>) {
-    this.id = params?.id;
-    this.species = params?.species;
-    this.donorId = params?.donorId;
+  constructor(params: AdoptionEntity) {
+    this.id = params?.id ?? randomUUID();
+
+    this.species = params.species;
+    this.donorId = params.donorId;
+    this.name = params.name;
+    this.gender = params.gender;
+
     this.breed = params?.breed;
-    this.name = params?.name;
     this.pictures = params?.pictures;
-    this.gender = params?.gender;
     this.adoptionState = params?.adoptionState ?? 'INPROGRESS';
     this.createdAt = params?.createdAt ?? new Date();
     this.updatedAt = params?.updatedAt ?? new Date();

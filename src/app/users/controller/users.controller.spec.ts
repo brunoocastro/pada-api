@@ -50,10 +50,8 @@ describe('UsersController', () => {
 
   describe('getUser', () => {
     it('should return user data', async () => {
-      // Act
       const result = await usersController.getUser(loggedUser.id);
 
-      // Assert
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user).toEqual(loggedUser);
@@ -72,17 +70,14 @@ describe('UsersController', () => {
 
   describe('updateUser', () => {
     it('should update user and return updated data', async () => {
-      // Arrange
       const updatedName = 'Novo nome';
       const updatedUser = { ...loggedUser, name: updatedName };
       jest.spyOn(usersService, 'update').mockResolvedValue(updatedUser);
 
-      // Act
       const result = await usersController.updateUser(loggedUser.id, {
         name: updatedName,
       });
 
-      // Assert
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user).toEqual(updatedUser);
@@ -103,18 +98,16 @@ describe('UsersController', () => {
 
   describe('updateUserPassword', () => {
     it('should update user password and return updated data', async () => {
-      // Arrange
       const passwordPayload: UpdateUserPasswordDto = {
         newPassword: 'Teste',
         oldPassword: 'Teste2',
       };
-      // Act
+
       const result = await usersController.updateUserPassword(
         loggedUser.id,
         passwordPayload,
       );
 
-      // Assert
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user).toEqual(loggedUser);
@@ -138,10 +131,8 @@ describe('UsersController', () => {
 
   describe('deleteUser', () => {
     it('should delete user', async () => {
-      // Act
       const result = await usersController.deleteUser(loggedUser.id);
 
-      // Assert
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('id');
       expect(result.id).toEqual(loggedUser.id);
@@ -165,7 +156,6 @@ describe('UsersController', () => {
         loggedUser.id,
       );
 
-      // Assert
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user.emailStatus).toEqual('PENDING');
@@ -190,7 +180,6 @@ describe('UsersController', () => {
   });
   describe('confirmUserAccountByMail', () => {
     it('should confirm account with success', async () => {
-      // Arrange
       const fakeToken = randomUUID();
 
       //Act
@@ -199,7 +188,6 @@ describe('UsersController', () => {
         fakeToken,
       );
 
-      // Assert
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user.emailStatus).toEqual('VERIFIED');

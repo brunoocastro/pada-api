@@ -43,10 +43,10 @@ export class AdoptionService {
   }
 
   async validateDonorAndReturnAdoption(
-    donorId: string,
+    adoptionId: string,
     possibleDonorId: string,
   ): Promise<Partial<AdoptionEntity>> {
-    const adoption = await this.getExistentById(donorId, true);
+    const adoption = await this.getExistentById(adoptionId, true);
     if (adoption.donorId !== possibleDonorId)
       throw new UnauthorizedException('This action is only to donor');
 

@@ -13,7 +13,6 @@ import { MailService } from '../../mail/service/mail.service';
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
-import { UserWithSensitiveDataDto } from '../dto/user-with-sensitive-data.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UsersRepository } from '../repository/users.repository';
 
@@ -25,29 +24,32 @@ export class UsersService {
     private readonly mailService: MailService,
   ) {}
 
-  async findById(id: string): Promise<UserEntity> {
+  private async findByIdWithSensitiveData(id: string): Promise<UserEntity> {
     const possibleUser = await this.usersRepository.findById(id);
 
-    return plainToInstance(UserEntity, possibleUser ?? null, {
-      excludeExtraneousValues: true,
-    });
+    if (!possibleUser) return null;
+
+    return new UserEntity(possibleUser);
   }
-  private async findByIdWithSensitiveData(
-    id: string,
-  ): Promise<UserWithSensitiveDataDto> {
-    const possibleUser = await this.usersRepository.findById(id);
 
-    return plainToInstance(UserWithSensitiveDataDto, possibleUser ?? null, {
-      excludeExtraneousValues: true,
-    });
+  async findById(id: string): Promise<UserEntity> {
+    const possibleUser = await this.findByIdWithSensitiveData(id);
+
+    if (!possibleUser) return null;
+    possibleUser.password = undefined;
+
+    return new UserEntity(possibleUser);
   }
 
   async findByEmail(email: string): Promise<UserEntity> {
     const possibleUser = await this.usersRepository.findByEmail(email);
 
-    return plainToInstance(UserEntity, possibleUser ?? null, {
-      excludeExtraneousValues: true,
-    });
+    if (!possibleUser) return null;
+
+    const userEntity = new UserEntity(possibleUser);
+    userEntity.password = undefined;
+
+    return userEntity;
   }
 
   async getExistentById(id: string): Promise<UserEntity> {

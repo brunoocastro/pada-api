@@ -25,7 +25,6 @@ import { LoggedUser } from '../../auth/decorators/logged-user.decorator';
 import { ExclusiveForUserWithId } from '../../auth/decorators/user-exclusive.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt.guards';
 import { UserResponseDto } from '../../users/dto/user-response.dto';
-import { UserEntity } from '../../users/entities/user.entity';
 import { AdoptionService } from './../service/adoption.service';
 import { ParseQueryParams } from './../decorators/parse-query-params.decorator';
 import { CreateAdoptionDto } from './../dto/create-adoption.dto';
@@ -74,7 +73,7 @@ export class AdoptionController {
 
   @Get('')
   async getAll(
-    @LoggedUser() user: UserEntity,
+    @LoggedUser() user: UserResponseDto,
     @ParseQueryParams() params: AdoptionQueryParams,
   ) {
     return await this.adoptionService.findAll(
@@ -139,7 +138,6 @@ export class AdoptionController {
       donor.id,
     );
 
-    console.log({ pictures: adoption.pictures });
     const pictures = adoption.pictures;
 
     pictures[Object.keys(pictures).length + 1] = file.filename;

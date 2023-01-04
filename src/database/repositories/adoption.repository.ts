@@ -5,6 +5,7 @@ import { AdoptionQueryParams } from '../../app/adoption/interfaces/DefaultQueryP
 import { databaseHelper } from '../../helpers/database.helper';
 import { PrismaService } from '../prisma.service';
 import { AdoptionWithDonorEntity } from '../../app/adoption/entities/adoptionWithDonor.entity';
+import { CreateAdoptionDto } from '../../app/adoption/dto/create-adoption.dto';
 
 @Injectable()
 export class AdoptionPrismaRepository implements AdoptionRepository {
@@ -76,13 +77,10 @@ export class AdoptionPrismaRepository implements AdoptionRepository {
 
   async create(
     donorId: string,
-    adoption: AdoptionEntity,
+    adoption: CreateAdoptionDto,
   ): Promise<AdoptionEntity> {
     return await this.prismaService.adoption.create({
-      data: {
-        ...adoption,
-        donorId: donorId,
-      },
+      data: { ...adoption, donorId },
     });
   }
 
