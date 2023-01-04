@@ -14,6 +14,8 @@ import {
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { IsPublic } from '../../auth/decorators/is-public.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt.guards';
@@ -25,6 +27,7 @@ import { filesHelper } from '../../../helpers/files.helper';
 import { UsersService } from '../service/users.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 const fileHelper = new filesHelper();
 const userPictureStorage = {
@@ -41,6 +44,8 @@ const userPictureStorage = {
 };
 
 @Controller('user')
+@ApiBearerAuth()
+@ApiTags('user')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

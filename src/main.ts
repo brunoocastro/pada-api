@@ -11,9 +11,10 @@ async function bootstrap() {
     .setTitle('Projeto Amigo dos Animais - PADA')
     .setDescription('An open-source project to facilitate pet adoption.')
     .setVersion('1.0')
-    .addTag('pada')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('', app, document);
 
   app.useGlobalPipes(
@@ -23,6 +24,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
   await app.listen(3000);
 }
+
 bootstrap();

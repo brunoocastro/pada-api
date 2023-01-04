@@ -1,3 +1,4 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsEmail,
@@ -14,19 +15,24 @@ export class RegisterUserDto
 {
   @IsNotEmpty()
   @IsEmail()
+  @ApiProperty()
   email: string;
 
   @IsNotEmpty()
   @Matches(RegExHelper.password, { message: MessagesHelper.InvalidPassword })
+  @ApiProperty()
   password: string;
 
   @IsNotEmpty()
+  @ApiProperty()
   name: string;
 
   @IsOptional()
+  @ApiPropertyOptional()
   picture: string;
 
   @IsOptional()
   @IsMobilePhone(['pt-BR'])
+  @ApiPropertyOptional()
   phone: string;
 }

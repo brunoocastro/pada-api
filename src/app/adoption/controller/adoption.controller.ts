@@ -13,6 +13,8 @@ import {
   ParseFilePipe,
   FileTypeValidator,
   MaxFileSizeValidator,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { randomUUID } from 'node:crypto';
@@ -32,6 +34,7 @@ import { UpdateAdoptionDto } from './../dto/update-adoption.dto';
 import { AdoptionQueryParams } from './../interfaces/DefaultQueryParams.interface';
 import { join } from 'node:path';
 import { UsersService } from '../../users/service/users.service';
+import { ApiTags } from '@nestjs/swagger';
 
 const fileHelper = new filesHelper();
 const adoptionPictureStorage = {
@@ -50,6 +53,7 @@ const adoptionPictureStorage = {
 };
 
 @Controller('adoption')
+@ApiTags('adoption')
 @UseGuards(JwtAuthGuard)
 export class AdoptionController {
   constructor(
@@ -58,6 +62,7 @@ export class AdoptionController {
   ) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async createAdoption(
     @Body() createAdoptionDto: CreateAdoptionDto,
     @HasVerifiedAccount() donor: UserResponseDto,

@@ -1,9 +1,11 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EmailStatus, Role, User } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
 
 export class UserEntity implements Partial<User> {
   @Expose()
+  @ApiProperty()
   id: string;
 
   @Expose()
@@ -13,6 +15,7 @@ export class UserEntity implements Partial<User> {
   updatedAt?: Date;
 
   @Expose()
+  @ApiProperty()
   email: string;
 
   @Expose()
@@ -22,15 +25,19 @@ export class UserEntity implements Partial<User> {
   role: Role;
 
   @Expose()
+  @ApiProperty()
   name: string;
 
   @Expose()
+  @ApiPropertyOptional()
   picture?: string;
 
   @Expose()
+  @ApiPropertyOptional()
   phone?: string;
 
   @Exclude()
+  @ApiProperty()
   password?: string;
 
   constructor(user: UserEntity) {
