@@ -1,19 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { AdoptionRepository } from '../../app/adoption/repository/adoption.repository';
 import { AdoptionEntity } from '../../app/adoption/entities/adoption.entity';
-import { DefaultAdoptionsResponse } from '../../app/adoption/interfaces/DefaultAdoptionsResponse.interface';
 import { AdoptionQueryParams } from '../../app/adoption/interfaces/DefaultQueryParams.interface';
 import { databaseHelper } from '../../helpers/database.helper';
 import { PrismaService } from '../prisma.service';
+import { AdoptionWithDonorEntity } from '../../app/adoption/entities/adoptionWithDonor.entity';
 
 @Injectable()
 export class AdoptionPrismaRepository implements AdoptionRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
+  async count(params: AdoptionQueryParams, userId?: string): Promise<number> {
+    const baseParams = databaseHelper.getFindManyParams(params);
+
+    const paramsWithUserId = {
+      ...baseParams,
+      where: {
+        ...baseParams.where,
+        donorId: userId ?? {},
+      },
+    };
+
+    const total = await this.prismaService.adoption.count(paramsWithUserId);
+
+    return total;
+  }
+
   async findAllPerUser(
     userId: string,
     params: AdoptionQueryParams,
-  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>> {
+  ): Promise<AdoptionEntity[]> {
     const baseParams = databaseHelper.getFindManyParams(params);
 
     const paramsWithUserId = {
@@ -27,20 +43,14 @@ export class AdoptionPrismaRepository implements AdoptionRepository {
     const userAdoptions = await this.prismaService.adoption.findMany(
       paramsWithUserId,
     );
-    const total = await this.prismaService.adoption.count(paramsWithUserId);
 
-    return {
-      page: params.page,
-      page_size: params.page_size,
-      total,
-      registers: userAdoptions,
-    };
+    return userAdoptions;
   }
 
   async findAll(
     canSeeDonorInfo = false,
     params: AdoptionQueryParams,
-  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>> {
+  ): Promise<AdoptionWithDonorEntity[]> {
     const baseParams = databaseHelper.getFindManyParams(params);
 
     const selectParams = databaseHelper.getSelectorParams(canSeeDonorInfo);
@@ -50,14 +60,7 @@ export class AdoptionPrismaRepository implements AdoptionRepository {
       ...selectParams,
     });
 
-    const total = await this.prismaService.adoption.count(baseParams);
-
-    return {
-      page: params.page,
-      page_size: params.page_size,
-      total,
-      registers: publicAdoptions,
-    };
+    return publicAdoptions;
   }
 
   async findById(

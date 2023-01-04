@@ -8,6 +8,8 @@ import { CreateAdoptionDto } from './../dto/create-adoption.dto';
 import { UpdateAdoptionDto } from './../dto/update-adoption.dto';
 import { AdoptionEntity } from './../entities/adoption.entity';
 import { AdoptionQueryParams } from './../interfaces/DefaultQueryParams.interface';
+import { DefaultAdoptionsResponse } from '../interfaces/DefaultAdoptionsResponse.interface';
+import { AdoptionWithDonorEntity } from '../entities/adoptionWithDonor.entity';
 
 @Injectable()
 export class AdoptionService {
@@ -15,6 +17,16 @@ export class AdoptionService {
 
   async create(donorId: string, createAdoptionDto: CreateAdoptionDto) {
     return await this.adoptionRepository.create(donorId, createAdoptionDto);
+  }
+
+  async updateById(id: string, updateAdoptionDto: UpdateAdoptionDto) {
+    await this.getExistentById(id);
+    return await this.adoptionRepository.updateById(id, updateAdoptionDto);
+  }
+
+  async removeById(id: string) {
+    await this.getExistentById(id);
+    return await this.adoptionRepository.deleteById(id);
   }
 
   async findOneById(id: string, canSeeDonorInfo = false) {
@@ -41,29 +53,41 @@ export class AdoptionService {
     return adoption;
   }
 
-  async getAllFromDonor(donorId: string, params: AdoptionQueryParams) {
-    return await this.adoptionRepository.findAllPerUser(donorId, params);
+  async getAllFromDonor(
+    donorId: string,
+    params: AdoptionQueryParams,
+  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>> {
+    const registers = await this.adoptionRepository.findAllPerUser(
+      donorId,
+      params,
+    );
+
+    const total = await this.adoptionRepository.count(params, donorId);
+
+    return {
+      page: params.page,
+      page_size: params.page_size,
+      total,
+      registers,
+    };
   }
 
   async findAll(
     hasVerifiedAccount = false,
-    defaultParams: AdoptionQueryParams,
-  ) {
-    const allAdoptions = await this.adoptionRepository.findAll(
+    params: AdoptionQueryParams,
+  ): Promise<DefaultAdoptionsResponse<AdoptionWithDonorEntity>> {
+    const registers = await this.adoptionRepository.findAll(
       hasVerifiedAccount,
-      defaultParams,
+      params,
     );
 
-    return allAdoptions;
-  }
+    const total = await this.adoptionRepository.count(params);
 
-  async updateById(id: string, updateAdoptionDto: UpdateAdoptionDto) {
-    await this.getExistentById(id);
-    return await this.adoptionRepository.updateById(id, updateAdoptionDto);
-  }
-
-  async removeById(id: string) {
-    await this.getExistentById(id);
-    return await this.adoptionRepository.deleteById(id);
+    return {
+      page: params.page,
+      page_size: params.page_size,
+      total,
+      registers,
+    };
   }
 }

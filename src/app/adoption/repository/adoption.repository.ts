@@ -1,7 +1,7 @@
 import { CreateAdoptionDto } from '../dto/create-adoption.dto';
 import { UpdateAdoptionDto } from '../dto/update-adoption.dto';
 import { AdoptionEntity } from '../entities/adoption.entity';
-import { DefaultAdoptionsResponse } from '../interfaces/DefaultAdoptionsResponse.interface';
+import { AdoptionWithDonorEntity } from '../entities/adoptionWithDonor.entity';
 import { AdoptionQueryParams } from '../interfaces/DefaultQueryParams.interface';
 
 export abstract class AdoptionRepository {
@@ -10,15 +10,20 @@ export abstract class AdoptionRepository {
     canSeeDonorInfo: boolean,
   ): Promise<Partial<AdoptionEntity>>;
 
+  abstract count(
+    params: AdoptionQueryParams,
+    donorId?: string,
+  ): Promise<number>;
+
   abstract findAll(
     canSeeDonorInfo: boolean,
     params: AdoptionQueryParams,
-  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>>;
+  ): Promise<AdoptionWithDonorEntity[]>;
 
   abstract findAllPerUser(
     userId: string,
     params: AdoptionQueryParams,
-  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>>;
+  ): Promise<AdoptionEntity[]>;
 
   abstract create(
     donorId: string,
