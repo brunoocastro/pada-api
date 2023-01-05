@@ -11,11 +11,21 @@ Projeto Amigo dos Animais - PADA
 </p>
 </p>
 
-## Help us
+# Project History
 
-You can contribute with this project opening a pull-request
+This is not just any project, the idea for this project came about in mid-2015 when I was in my first year of high school. This was the first website I made in my life, at a time when I didn't even know what a programming language was.
 
-### **OBS**: Before run, configure your env based on .env.example
+The goal was to facilitate the adoption of animals in my city, which was a big problem at the time. The project even deployed with the support of my teacher and several veterinary clinics in the city, but it was not used on a large scale by the population.
+
+It was made (at the time) in the [WIX website generator](wix.com) and presented as a final paper for a sociology course.
+
+Today I decided to redo it, after a few years of experience in the area, as a personal project and as a proof of concept in a [framework (NestJS)](https://nestjs.com/) that I hadn't worked on yet.
+
+I'm really happy to finally get it into production. This is just the API, soon I will make a website to consume it and the Projeto Amigo dos Animais (PADA) will come back to life!
+
+### You can access a legacy [Facebook page here](https://www.facebook.com/pamigodosanimais)
+
+---
 
 # Running locally
 
@@ -27,6 +37,8 @@ $ npm install
 ```
 
 ## Configure DB Migration
+
+### **OBS**: Before migration, ensure that you have a configured .env file based on .env.example
 
 ```bash
 # migrate dev db
@@ -45,6 +57,8 @@ $ npm run start:dev
 # production mode
 $ npm run start:prod
 ```
+
+---
 
 # Deployed API for Tests
 
@@ -67,6 +81,16 @@ So, here are some previously authorized emails for testing using free email prov
 - pada-test-3@yopmail.com
 - pada-test-4@yopmail.com
 - pada-test-5@yopmail.com
+
+You can access any of this mailboxes using "?email" after Yopmail URL, like this:
+
+- [https://yopmail.com?pada-test-1](https://yopmail.com?pada-test-1) 
+
+or
+
+- [https://yopmail.com?pada-test-1@yopmail.com](https://yopmail.com?pada-test-1@yopmail.com)
+
+---
 
 ## Stay in touch
 
