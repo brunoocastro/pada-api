@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
-import { UserResponseDto } from '../dto/user-response.dto';
+import { UserResponseDto } from '../dto/response/user-response.dto';
 import { UsersService } from '../service/users.service';
 import { UsersController } from './users.controller';
 
@@ -9,7 +9,6 @@ const loggedUser: UserResponseDto = {
   emailStatus: 'UNVERIFIED',
   id: randomUUID(),
   name: 'Logged user',
-  picture: 'https://thispersondoesnotexist.com/',
   role: 'USER',
 };
 
@@ -25,6 +24,7 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: {
             findById: jest.fn().mockResolvedValue(loggedUser),
+            getExistentById: jest.fn().mockResolvedValue(loggedUser),
             update: jest.fn(),
             updatePassword: jest.fn().mockResolvedValue(loggedUser),
             delete: jest.fn().mockResolvedValue(undefined),
@@ -55,8 +55,8 @@ describe('UsersController', () => {
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user).toEqual(loggedUser);
-      expect(usersService.findById).toBeCalledWith(loggedUser.id);
-      expect(usersService.findById).toBeCalledTimes(1);
+      expect(usersService.getExistentById).toBeCalledWith(loggedUser.id);
+      expect(usersService.getExistentById).toBeCalledTimes(1);
     });
 
     it('should throw an exception', () => {
@@ -131,11 +131,8 @@ describe('UsersController', () => {
 
   describe('deleteUser', () => {
     it('should delete user', async () => {
-      const result = await usersController.deleteUser(loggedUser.id);
+      await usersController.deleteUser(loggedUser.id);
 
-      expect(result).toHaveProperty('message');
-      expect(result).toHaveProperty('id');
-      expect(result.id).toEqual(loggedUser.id);
       expect(usersService.delete).toBeCalledWith(loggedUser.id);
       expect(usersService.delete).toBeCalledTimes(1);
     });

@@ -27,7 +27,16 @@ import { filesHelper } from '../../../helpers/files.helper';
 import { UsersService } from '../service/users.service';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { DefaultUserControllerResponseDto } from '../dto/response/default-user-response.dto';
+import { NotFoundResponseDto } from '../../../helpers/swagger/not-found.dto';
 
 const fileHelper = new filesHelper();
 const userPictureStorage = {
@@ -51,16 +60,40 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
-  async getUser(@ExclusiveForUserWithId() id: string) {
-    const user = await this.usersService.findById(id);
+  @ApiOperation({ summary: 'Get user data by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get user data with success',
+    type: DefaultUserControllerResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User not found',
+    type: NotFoundResponseDto,
+  })
+  async getUser(
+    @ExclusiveForUserWithId() id: string,
+  ): Promise<DefaultUserControllerResponseDto> {
+    const user = await this.usersService.getExistentById(id);
     return { message: 'User found with success!', user };
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update user data by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'User data updated with success',
+    type: DefaultUserControllerResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User not found',
+    type: NotFoundResponseDto,
+  })
   async updateUser(
     @ExclusiveForUserWithId() id: string,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
+  ): Promise<DefaultUserControllerResponseDto> {
     const user = await this.usersService.update(id, updateUserDto);
     return {
       message: 'User updated with success!',
@@ -69,10 +102,21 @@ export class UsersController {
   }
 
   @Patch(':id/password')
+  @ApiOperation({ summary: 'Update user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'User password updated with success',
+    type: DefaultUserControllerResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User not found',
+    type: NotFoundResponseDto,
+  })
   async updateUserPassword(
     @ExclusiveForUserWithId() id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,
-  ) {
+  ): Promise<DefaultUserControllerResponseDto> {
     const user = await this.usersService.updatePassword(
       id,
       updateUserPasswordDto,
@@ -84,13 +128,34 @@ export class UsersController {
   }
 
   @Delete(':id')
-  async deleteUser(@ExclusiveForUserWithId() id: string) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete user by id' })
+  @ApiResponse({
+    status: 204,
+    description: 'User deleted with success',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User not found',
+    type: NotFoundResponseDto,
+  })
+  async deleteUser(@ExclusiveForUserWithId() id: string): Promise<void> {
     await this.usersService.delete(id);
-    return { message: 'User deleted with success!', id };
   }
 
   @IsPublic()
   @Get(':id/verify/:token')
+  @ApiOperation({ summary: 'Verify user account with token received by email' })
+  @ApiResponse({
+    status: 200,
+    description: 'Account verified with success',
+    type: DefaultUserControllerResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User not found',
+    type: NotFoundResponseDto,
+  })
   async verifyAccountByMail(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Param('token') token: string,
@@ -103,6 +168,17 @@ export class UsersController {
   }
 
   @Get(':id/mail/send')
+  @ApiOperation({ summary: 'Send account verification mail' })
+  @ApiResponse({
+    status: 200,
+    description: 'Account verification mail with success',
+    type: DefaultUserControllerResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User not found',
+    type: NotFoundResponseDto,
+  })
   async sendAccountVerificationMail(@ExclusiveForUserWithId() id: string) {
     const updatedUser = await this.usersService.sendAccountVerificationMailById(
       id,
@@ -115,6 +191,26 @@ export class UsersController {
   }
 
   @Post(':id/picture/upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiOperation({
+    summary: 'Uploads and update user picture',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User picture upload with success',
+    type: DefaultUserControllerResponseDto,
+  })
   @UseInterceptors(FileInterceptor('file', userPictureStorage))
   async uploadUserPicture(
     @ExclusiveForUserWithId() id: string,
@@ -138,6 +234,16 @@ export class UsersController {
   }
 
   @Get(':id/picture')
+  @ApiOperation({ summary: 'Get user picture' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returned user picture with success',
+    type: Blob,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User not found',
+  })
   async getUserPicture(@ExclusiveForUserWithId() id: string, @Res() res) {
     const user = await this.usersService.getExistentById(id);
     return res.sendFile(

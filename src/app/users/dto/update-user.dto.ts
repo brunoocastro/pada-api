@@ -1,13 +1,23 @@
-import { IsEmpty, IsOptional } from 'class-validator';
+import { ApiHideProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { EmailStatus } from '@prisma/client';
+import { IsEmpty, IsMobilePhone, IsOptional } from 'class-validator';
 import { UserEntity } from '../entities/user.entity';
 
 export class UpdateUserDto implements Partial<UserEntity> {
   @IsOptional()
-  name?: UserEntity['name'];
+  @ApiPropertyOptional()
+  name?: string;
 
   @IsOptional()
-  picture?: UserEntity['picture'];
+  @ApiPropertyOptional()
+  picture?: string;
+
+  @IsOptional()
+  @IsMobilePhone(['pt-BR'])
+  @ApiPropertyOptional()
+  phone?: string;
 
   @IsEmpty()
-  emailStatus?: UserEntity['emailStatus'];
+  @ApiHideProperty()
+  emailStatus?: EmailStatus;
 }

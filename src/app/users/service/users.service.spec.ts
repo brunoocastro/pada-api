@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 import { cryptoHelper } from '../../../helpers/crypto.helper';
 import { RegisterUserDto } from '../../auth/dto/register.dto';
 import { MailService } from '../../mail/service/mail.service';
-import { UserResponseDto } from '../dto/user-response.dto';
+import { UserResponseDto } from '../dto/response/user-response.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UsersRepository } from '../repository/users.repository';
 import { UsersService } from './users.service';
@@ -252,7 +252,6 @@ describe('UsersService', () => {
         emailStatus: userEntityWithoutSensitiveData.emailStatus,
         id: userEntityWithoutSensitiveData.id,
         name: 'Updated Name',
-        picture: userEntityWithoutSensitiveData.picture,
         role: userEntityWithoutSensitiveData.role,
       };
 

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
-import { UserResponseDto } from '../../users/dto/user-response.dto';
+import { UserResponseDto } from '../../users/dto/response/user-response.dto';
 import { AuthController } from './auth.controller';
 import { AuthService } from '../service/auth.service';
 import { RegisterUserDto } from '../dto/register.dto';
@@ -17,7 +17,6 @@ const newUserResponseDto: UserResponseDto = {
   emailStatus: 'UNVERIFIED',
   id: randomUUID(),
   name: newUserPayloadDto.name,
-  picture: newUserPayloadDto.picture,
   role: 'USER',
 };
 
@@ -49,7 +48,6 @@ describe('AuthController', () => {
 
   describe('register', () => {
     it('should register a user and return basic user data', async () => {
-      
       const result = await authController.register(newUserPayloadDto);
 
       //Assert

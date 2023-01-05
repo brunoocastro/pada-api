@@ -12,7 +12,7 @@ import { RegisterUserDto } from '../../auth/dto/register.dto';
 import { MailService } from '../../mail/service/mail.service';
 import { UpdateUserPasswordDto } from '../dto/update-user-password.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { UserResponseDto } from '../dto/user-response.dto';
+import { UserResponseDto } from '../dto/response/user-response.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UsersRepository } from '../repository/users.repository';
 

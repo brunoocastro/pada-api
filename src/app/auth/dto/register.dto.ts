@@ -29,10 +29,10 @@ export class RegisterUserDto
 
   @IsOptional()
   @ApiPropertyOptional()
-  picture: string;
+  picture?: string;
 
   @IsOptional()
   @IsMobilePhone(['pt-BR'])
   @ApiPropertyOptional()
-  phone: string;
+  phone?: string;
 }

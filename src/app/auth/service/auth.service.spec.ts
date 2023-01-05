@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { plainToInstance } from 'class-transformer';
 import { randomUUID } from 'node:crypto';
 import { cryptoHelper } from '../../../helpers/crypto.helper';
-import { UserResponseDto } from '../../users/dto/user-response.dto';
+import { UserResponseDto } from '../../users/dto/response/user-response.dto';
 import { UsersRepository } from '../../users/repository/users.repository';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from '../dto/register.dto';
@@ -120,9 +120,9 @@ describe('AuthService', () => {
     const registerPayload: RegisterUserDto = {
       email: userEmail,
       name: userData.name,
-      picture: userData.picture,
+      picture: 'thispersondoesnotexists.com',
       password: userWithSensitiveData.password,
-      phone: '55998765432',
+      phone: '55996279889',
     };
 
     it('should register user, send confirmation mail and return user data', async () => {
