@@ -1,40 +1,51 @@
+import {
+  ApiHideProperty,
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
 import { Adoption, AdoptionStates, Genders, Prisma } from '@prisma/client';
 import { Expose } from 'class-transformer';
+import { IsEnum } from 'class-validator';
 import { randomUUID } from 'node:crypto';
-
-export enum AdoptionStatesEnum {
-  MALE,
-  FEMALE,
-  UNKNOWN,
-}
 
 export class AdoptionEntity implements Partial<Adoption> {
   @Expose()
+  @ApiProperty()
   id?: string;
 
   @Expose()
+  @ApiHideProperty()
   createdAt?: Date;
 
   @Expose()
+  @ApiHideProperty()
   updatedAt?: Date;
 
   @Expose()
+  @ApiProperty()
   species: string;
 
   @Expose()
+  @ApiPropertyOptional()
   breed?: string;
 
   @Expose()
+  @ApiProperty()
   name: string;
 
   @Expose()
-  pictures?: Prisma.JsonValue;
+  @ApiPropertyOptional({ type: JSON })
+  pictures: Prisma.JsonValue;
 
   @Expose()
+  @IsEnum(Genders)
+  @ApiProperty({ enum: Genders })
   gender: Genders;
 
   @Expose()
-  adoptionState?: AdoptionStates;
+  @IsEnum(AdoptionStates)
+  @ApiProperty({ enum: AdoptionStates })
+  adoptionState: AdoptionStates;
 
   @Expose()
   donorId: string;

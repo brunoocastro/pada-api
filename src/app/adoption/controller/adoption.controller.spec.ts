@@ -6,7 +6,7 @@ import { AdoptionService } from '../service/adoption.service';
 import { CreateAdoptionDto } from '../dto/create-adoption.dto';
 import { AdoptionEntity } from '../entities/adoption.entity';
 import { AdoptionQueryParams } from '../interfaces/DefaultQueryParams.interface';
-import { DefaultAdoptionsResponse } from '../interfaces/DefaultAdoptionsResponse.interface';
+import { ManyAdoptionsResponseDto } from '../interfaces/DefaultAdoptionsResponse.interface';
 import { AdoptionWithDonorEntity } from '../entities/adoptionWithDonor.entity';
 import { UsersService } from '../../users/service/users.service';
 
@@ -62,7 +62,7 @@ const responseWithParams = <T>(
   params: AdoptionQueryParams,
   registers: Partial<T>[],
   total: number,
-): DefaultAdoptionsResponse<T> => ({
+): ManyAdoptionsResponseDto<T> => ({
   page: params.page,
   page_size: params.page_size,
   registers,

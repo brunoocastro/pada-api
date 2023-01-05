@@ -1,14 +1,18 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { ApiHideProperty, ApiProperty, PartialType } from '@nestjs/swagger';
+import { AdoptionStates } from '@prisma/client';
 import { Exclude, Expose } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { AdoptionEntity } from '../entities/adoption.entity';
 import { CreateAdoptionDto } from './create-adoption.dto';
 
 export class UpdateAdoptionDto extends PartialType(CreateAdoptionDto) {
   @Exclude()
+  @ApiHideProperty()
   donorId?: AdoptionEntity['donorId'];
 
   @Expose()
   @IsOptional()
-  adoptionState?: AdoptionEntity['adoptionState'];
+  @IsEnum(AdoptionStates)
+  @ApiProperty({ enum: AdoptionStates })
+  adoptionState?: AdoptionStates;
 }

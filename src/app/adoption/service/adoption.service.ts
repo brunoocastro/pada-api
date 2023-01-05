@@ -8,8 +8,8 @@ import { CreateAdoptionDto } from './../dto/create-adoption.dto';
 import { UpdateAdoptionDto } from './../dto/update-adoption.dto';
 import { AdoptionEntity } from './../entities/adoption.entity';
 import { AdoptionQueryParams } from './../interfaces/DefaultQueryParams.interface';
-import { DefaultAdoptionsResponse } from '../interfaces/DefaultAdoptionsResponse.interface';
 import { AdoptionWithDonorEntity } from '../entities/adoptionWithDonor.entity';
+import { ManyAdoptionsResponseDto } from '../dto/response/default-adoption-response.dto';
 
 @Injectable()
 export class AdoptionService {
@@ -56,7 +56,7 @@ export class AdoptionService {
   async getAllFromDonor(
     donorId: string,
     params: AdoptionQueryParams,
-  ): Promise<DefaultAdoptionsResponse<AdoptionEntity>> {
+  ): Promise<ManyAdoptionsResponseDto<AdoptionEntity>> {
     const registers = await this.adoptionRepository.findAllPerUser(
       donorId,
       params,
@@ -75,7 +75,7 @@ export class AdoptionService {
   async findAll(
     hasVerifiedAccount = false,
     params: AdoptionQueryParams,
-  ): Promise<DefaultAdoptionsResponse<AdoptionWithDonorEntity>> {
+  ): Promise<ManyAdoptionsResponseDto<AdoptionWithDonorEntity>> {
     const registers = await this.adoptionRepository.findAll(
       hasVerifiedAccount,
       params,

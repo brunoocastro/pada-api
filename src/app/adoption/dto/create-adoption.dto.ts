@@ -1,30 +1,34 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Genders, Prisma } from '@prisma/client';
 import { Expose } from 'class-transformer';
 import { IsEnum, IsJSON, IsNotEmpty, IsOptional } from 'class-validator';
-import {
-  AdoptionEntity,
-  AdoptionStatesEnum,
-} from '../entities/adoption.entity';
+import { AdoptionEntity } from '../entities/adoption.entity';
 
 export class CreateAdoptionDto implements Partial<AdoptionEntity> {
   @Expose()
   @IsNotEmpty()
-  species: AdoptionEntity['species'];
+  @ApiProperty()
+  species: string;
 
   @Expose()
   @IsOptional()
-  breed: AdoptionEntity['breed'];
+  @ApiPropertyOptional()
+  breed: string;
 
   @Expose()
   @IsNotEmpty()
-  name: AdoptionEntity['name'];
+  @ApiProperty()
+  name: string;
 
   @Expose()
   @IsOptional()
   @IsJSON()
-  pictures: AdoptionEntity['pictures'];
+  @ApiPropertyOptional({ type: JSON })
+  pictures: Prisma.JsonValue;
 
   @Expose()
   @IsNotEmpty()
-  @IsEnum(AdoptionStatesEnum)
-  gender: AdoptionEntity['gender'];
+  @IsEnum(Genders)
+  @ApiProperty({ enum: Genders })
+  gender: Genders;
 }

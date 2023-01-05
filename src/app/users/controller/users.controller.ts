@@ -37,6 +37,7 @@ import {
 } from '@nestjs/swagger';
 import { DefaultUserControllerResponseDto } from '../dto/response/default-user-response.dto';
 import { NotFoundResponseDto } from '../../../helpers/swagger/not-found.dto';
+import { BadRequestResponseDto } from '../../../helpers/swagger/bad-request.dto';
 
 const fileHelper = new filesHelper();
 const userPictureStorage = {
@@ -208,8 +209,13 @@ export class UsersController {
   })
   @ApiResponse({
     status: 200,
-    description: 'User picture upload with success',
+    description: 'User picture uploaded with success',
     type: DefaultUserControllerResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'User picture format or size invalid',
+    type: BadRequestResponseDto,
   })
   @UseInterceptors(FileInterceptor('file', userPictureStorage))
   async uploadUserPicture(
