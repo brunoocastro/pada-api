@@ -7,7 +7,6 @@ import { UserResponseDto } from '../../users/dto/response/user-response.dto';
 import { UserEntity } from '../../users/entities/user.entity';
 import { UsersRepository } from '../../users/repository/users.repository';
 import { UsersService } from '../../users/service/users.service';
-import { LoginUserResponseDto } from '../dto/response/login-user-response.dto';
 import { UserWithTokenResponseDto } from '../dto/response/user-with-token-response.dto';
 import { RegisterUserDto } from './../dto/register.dto';
 

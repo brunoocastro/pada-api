@@ -31,7 +31,6 @@ describe('MailService', () => {
 
   describe('sendAccountVerificationMail', () => {
     it('should send an account confirmation email with success', async () => {
-      //Arrange
       const mailProps: SendAccountVerificationMail = {
         to: {
           name: 'cliente',

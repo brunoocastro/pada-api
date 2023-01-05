@@ -144,7 +144,6 @@ describe('AuthService', () => {
         .spyOn(usersService, 'create')
         .mockRejectedValueOnce(new BadRequestException());
 
-      //Assert
       expect(authService.registerUser(registerPayload)).rejects.toThrowError(
         new BadRequestException(),
       );

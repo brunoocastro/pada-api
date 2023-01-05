@@ -45,7 +45,7 @@ export class AdoptionEntity implements Partial<Adoption> {
   @Expose()
   @IsEnum(AdoptionStates)
   @ApiProperty({ enum: AdoptionStates })
-  adoptionState: AdoptionStates;
+  adoptionState?: AdoptionStates;
 
   @Expose()
   donorId: string;

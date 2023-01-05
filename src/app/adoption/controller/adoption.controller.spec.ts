@@ -6,9 +6,9 @@ import { AdoptionService } from '../service/adoption.service';
 import { CreateAdoptionDto } from '../dto/create-adoption.dto';
 import { AdoptionEntity } from '../entities/adoption.entity';
 import { AdoptionQueryParams } from '../interfaces/DefaultQueryParams.interface';
-import { ManyAdoptionsResponseDto } from '../interfaces/DefaultAdoptionsResponse.interface';
 import { AdoptionWithDonorEntity } from '../entities/adoptionWithDonor.entity';
 import { UsersService } from '../../users/service/users.service';
+import { ManyAdoptionsResponseDto } from '../dto/response/default-adoption-response.dto';
 
 const defaultParams: AdoptionQueryParams = {
   only_available: true,
@@ -130,7 +130,9 @@ describe('AdoptionController', () => {
         donor,
       );
 
-      expect(result).toEqual(adoption);
+      expect(result).toHaveProperty('message');
+      expect(result).toHaveProperty('adoption');
+      expect(result.adoption).toEqual(adoption);
       expect(adoptionService.create).toBeCalledTimes(1);
       expect(adoptionService.create).toBeCalledWith(
         donor.id,
@@ -206,9 +208,11 @@ describe('AdoptionController', () => {
     it('should get a adoption by id without donor info', async () => {
       const result = await adoptionController.findOne(adoption.id, donor);
 
-      expect(result).toEqual(adoptionWithoutDonor);
-      expect(result).not.toHaveProperty('donor');
-      expect(result.donorId).toBeUndefined();
+      expect(result).toHaveProperty('message');
+      expect(result).toHaveProperty('adoption');
+      expect(result.adoption).toEqual(adoptionWithoutDonor);
+      expect(result.adoption).not.toHaveProperty('donor');
+      expect(result.adoption.donorId).toBeUndefined();
       expect(adoptionService.getExistentById).toBeCalledTimes(1);
       expect(adoptionService.getExistentById).toBeCalledWith(
         adoption.id,
@@ -222,9 +226,11 @@ describe('AdoptionController', () => {
         .mockResolvedValueOnce(adoptionWithDonor);
       const result = await adoptionController.findOne(adoption.id, donor);
 
-      expect(result).toEqual(adoptionWithDonor);
-      expect(result).toHaveProperty('donor');
-      expect(result).toHaveProperty('donorId');
+      expect(result).toHaveProperty('message');
+      expect(result).toHaveProperty('adoption');
+      expect(result.adoption).toEqual(adoptionWithDonor);
+      expect(result.adoption).toHaveProperty('donor');
+      expect(result.adoption).toHaveProperty('donorId');
       expect(adoptionService.getExistentById).toBeCalledTimes(1);
       expect(adoptionService.getExistentById).toBeCalledWith(
         adoption.id,
@@ -289,7 +295,9 @@ describe('AdoptionController', () => {
         donor,
       );
 
-      expect(result).toEqual(updatedAdoption);
+      expect(result).toHaveProperty('message');
+      expect(result).toHaveProperty('adoption');
+      expect(result.adoption).toEqual(updatedAdoption);
       expect(adoptionService.updateById).toBeCalledTimes(1);
       expect(adoptionService.updateById).toBeCalledWith(adoption.id, {
         name: updatedAdoption.name,

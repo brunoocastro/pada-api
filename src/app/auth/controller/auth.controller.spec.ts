@@ -4,6 +4,9 @@ import { UserResponseDto } from '../../users/dto/response/user-response.dto';
 import { AuthController } from './auth.controller';
 import { AuthService } from '../service/auth.service';
 import { RegisterUserDto } from '../dto/register.dto';
+import { LocalStrategy } from '../strategies/local.strategy';
+
+const fakeToken = randomUUID();
 
 const newUserPayloadDto: RegisterUserDto = {
   email: 'tonelive@yopmail.com',
@@ -23,6 +26,7 @@ const newUserResponseDto: UserResponseDto = {
 describe('AuthController', () => {
   let authController: AuthController;
   let authService: AuthService;
+  let localStrategy: LocalStrategy;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,23 +38,32 @@ describe('AuthController', () => {
             registerUser: jest.fn().mockResolvedValue(newUserResponseDto),
           },
         },
+        {
+          provide: LocalStrategy,
+          useValue: {
+            validate: jest
+              .fn()
+              .mockResolvedValue({ token: fakeToken, ...newUserResponseDto }),
+          },
+        },
       ],
     }).compile();
 
     authController = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
+    localStrategy = module.get<LocalStrategy>(LocalStrategy);
   });
 
   it('should be defined', () => {
     expect(authController).toBeDefined();
     expect(authService).toBeDefined();
+    expect(localStrategy).toBeDefined();
   });
 
   describe('register', () => {
     it('should register a user and return basic user data', async () => {
       const result = await authController.register(newUserPayloadDto);
 
-      //Assert
       expect(result).toHaveProperty('message');
       expect(result).toHaveProperty('user');
       expect(result.user).toEqual(newUserResponseDto);
@@ -61,17 +74,30 @@ describe('AuthController', () => {
     });
 
     it('should throw an exception', () => {
-      //Arrange
       jest
         .spyOn(authService, 'registerUser')
         .mockRejectedValueOnce(new Error());
 
-      //Assert
       expect(authController.register).rejects.toThrowError();
     });
   });
 
   describe('login with decorators', () => {
-    it.todo('should return logged user with token');
+    it('should return logged user with token', async () => {
+      const result = await authController.login({
+        email: newUserPayloadDto.email,
+        password: newUserPayloadDto.password,
+      });
+
+      expect(result).toHaveProperty('message');
+      expect(result).toHaveProperty('user');
+      expect(result.user).toEqual({ token: fakeToken, ...newUserResponseDto });
+    });
+
+    it('should throw an exception', () => {
+      jest.spyOn(localStrategy, 'validate').mockRejectedValueOnce(new Error());
+
+      expect(authController.login).rejects.toThrowError();
+    });
   });
 });

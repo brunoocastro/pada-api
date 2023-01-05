@@ -60,10 +60,8 @@ describe('UsersController', () => {
     });
 
     it('should throw an exception', () => {
-      //Arrange
       jest.spyOn(usersService, 'findById').mockRejectedValueOnce(new Error());
 
-      //Assert
       expect(usersController.getUser).rejects.toThrowError();
     });
   });
@@ -88,10 +86,8 @@ describe('UsersController', () => {
     });
 
     it('should throw an exception', () => {
-      //Arrange
       jest.spyOn(usersService, 'update').mockRejectedValueOnce(new Error());
 
-      //Assert
       expect(usersController.updateUser).rejects.toThrowError();
     });
   });
@@ -119,12 +115,10 @@ describe('UsersController', () => {
     });
 
     it('should throw an exception', () => {
-      //Arrange
       jest
         .spyOn(usersService, 'updatePassword')
         .mockRejectedValueOnce(new Error());
 
-      //Assert
       expect(usersController.updateUserPassword).rejects.toThrowError();
     });
   });
@@ -138,10 +132,8 @@ describe('UsersController', () => {
     });
 
     it('should throw an exception', () => {
-      //Arrange
       jest.spyOn(usersService, 'delete').mockRejectedValueOnce(new Error());
 
-      //Assert
       expect(usersController.deleteUser).rejects.toThrowError();
     });
   });
@@ -164,12 +156,10 @@ describe('UsersController', () => {
     });
 
     it('should throw an exception', () => {
-      //Arrange
       jest
         .spyOn(usersService, 'sendAccountVerificationMailById')
         .mockRejectedValueOnce(new Error());
 
-      //Assert
       expect(
         usersController.sendAccountVerificationMail,
       ).rejects.toThrowError();
@@ -196,12 +186,10 @@ describe('UsersController', () => {
     });
 
     it('should throw an exception', () => {
-      //Arrange
       jest
         .spyOn(usersService, 'verifyAccountWithToken')
         .mockRejectedValueOnce(new Error());
 
-      //Assert
       expect(usersController.verifyAccountByMail).rejects.toThrowError();
     });
   });

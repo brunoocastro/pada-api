@@ -7,7 +7,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './../service/auth.service';
-import { LoggedUser } from './../decorators/logged-user.decorator';
 import { RegisterUserDto } from './../dto/register.dto';
 import { LocalAuthGuard } from './../guards/local.guards';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -18,11 +17,15 @@ import { BadRequestResponseDto } from '../../../helpers/swagger/bad-request.dto'
 import { LoginUserResponseDto } from '../dto/response/login-user-response.dto';
 import { UserWithTokenResponseDto } from '../dto/response/user-with-token-response.dto';
 import { DefaultUserControllerResponseDto } from '../../users/dto/response/default-user-response.dto';
+import { LocalStrategy } from '../strategies/local.strategy';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly localStrategy: LocalStrategy,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -39,10 +42,11 @@ export class AuthController {
     description: MessagesHelper.InvalidEmailOrPassword,
     type: UnauthorizedResponseDto,
   })
-  async login(
-    @Body() login: UserLoginDto,
-    @LoggedUser() user: UserWithTokenResponseDto,
-  ): Promise<LoginUserResponseDto> {
+  async login(@Body() login: UserLoginDto): Promise<LoginUserResponseDto> {
+    const user: UserWithTokenResponseDto = await this.localStrategy.validate(
+      login.email,
+      login.password,
+    );
     return { message: 'Logged with success!', user };
   }
 

@@ -167,7 +167,9 @@ export class AdoptionController {
   }
 
   @Get('donor/:id')
-  @ApiOperation({ summary: 'Get all adoptions for donor with id' })
+  @ApiOperation({
+    summary: 'Get all adoptions for donor with id',
+  })
   @ApiResponse({
     status: 200,
     description: 'Adoptions found with success',
@@ -179,7 +181,6 @@ export class AdoptionController {
     type: NotFoundResponseDto,
   })
   async findDonorAdoptions(
-    @Param('id') id: string,
     @ExclusiveForUserWithId() donorId: string,
     @ParseQueryParams() params: AdoptionQueryParams,
   ): Promise<ManyAdoptionsResponseDto<AdoptionEntity>> {
