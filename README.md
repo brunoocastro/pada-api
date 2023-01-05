@@ -11,7 +11,7 @@
 
 You can contribute with this project opening a pull-request
 
-## **OBS: Before run, configure your env based on .env.example**
+**OBS: Before run, configure your env based on .env.example**
 
 # Running locally
 
@@ -20,6 +20,13 @@ You can contribute with this project opening a pull-request
 ```bash
 # install project dependencies
 $ npm install
+```
+
+## Configure DB Migration
+
+```bash
+# migrate dev db
+$ npm run migrate:dev
 ```
 
 ## Start project
@@ -33,12 +40,6 @@ $ npm run start:dev
 
 # production mode
 $ npm run start:prod
-```
-
-# Running dockerd
-
-```bash
-# Coming soon
 ```
 
 ## Stay in touch
