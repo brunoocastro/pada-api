@@ -299,7 +299,6 @@ export class AdoptionController {
   @ApiResponse({
     status: 200,
     description: 'Returned adoption picture with success',
-    type: Blob,
   })
   @ApiResponse({
     status: 400,

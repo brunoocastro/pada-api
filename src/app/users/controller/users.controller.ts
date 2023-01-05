@@ -244,7 +244,6 @@ export class UsersController {
   @ApiResponse({
     status: 200,
     description: 'Returned user picture with success',
-    type: Blob,
   })
   @ApiResponse({
     status: 400,
