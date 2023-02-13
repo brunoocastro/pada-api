@@ -91,5 +91,18 @@
     "setupFiles": [
       "../jest-setup-file.ts"
     ]
-  }
+  },
+  "main": ".eslintrc.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brunoocastro/pada-api.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/brunoocastro/pada-api/issues"
+  },
+  "homepage": "https://github.com/brunoocastro/pada-api#readme"
 }
